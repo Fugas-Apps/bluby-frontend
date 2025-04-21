@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, Alert, FlatList } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { Screen } from '~/components/common/Screen';
+import { Card } from '~/components/ui/Card';
+import { Button } from '~/components/ui/Button';
+import { mockPantryItems } from '~/utils/mockData';
 import { router } from 'expo-router';
-import { Screen } from '../../src/components/common/Screen';
-import { Card } from '../../src/components/ui/Card';
-import { Button } from '../../src/components/ui/Button';
-import { mockPantryItems } from '../../src/utils/mockData';
 
 const PantryItemCard = ({ item, onPress }: { 
   item: typeof mockPantryItems[0];
@@ -47,7 +47,7 @@ const PantryItemCard = ({ item, onPress }: {
   );
 };
 
-export default function PantryScreen() {
+const PantryScreen = () => {
   const [showScanned, setShowScanned] = useState<boolean>(false);
   
   const filteredItems = showScanned 
@@ -117,4 +117,6 @@ export default function PantryScreen() {
       </View>
     </Screen>
   );
-} 
+};
+
+export default PantryScreen; 

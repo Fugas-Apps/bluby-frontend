@@ -1,18 +1,3 @@
-export type RootStackParamList = {
-  Main: undefined;
-  MealDetail: { mealType: string };
-  MealEvaluation: { mealType: string };
-  Scanner: undefined;
-};
-
-export type BottomTabParamList = {
-  Dashboard: undefined;
-  Pantry: undefined;
-  MealPlan: undefined;
-  Groups: undefined;
-  Profile: undefined;
-};
-
 export type MealType = 'Breakfast' | 'Lunch' | 'Dinner' | 'Snacks';
 
 export type FoodItem = {

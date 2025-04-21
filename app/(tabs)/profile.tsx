@@ -1,9 +1,9 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, Alert, ScrollView } from 'react-native';
-import { Screen } from '../../src/components/common/Screen';
-import { Card } from '../../src/components/ui/Card';
-import { Button } from '../../src/components/ui/Button';
-import { mockUserProfile } from '../../src/utils/mockData';
+import { Screen } from '~/components/common/Screen';
+import { Card } from '~/components/ui/Card';
+import { Button } from '~/components/ui/Button';
+import { mockUserProfile } from '~/utils/mockData';
 import { Ionicons } from '@expo/vector-icons';
 
 const ProfileSection = ({ 
@@ -88,7 +88,7 @@ const SettingsItem = ({
   );
 };
 
-export default function ProfileScreen() {
+const ProfileScreen = () => {
   const handleEditProfile = () => {
     Alert.alert('Edit Profile', 'Feature not implemented in this UI boilerplate');
   };
@@ -247,4 +247,6 @@ export default function ProfileScreen() {
       </View>
     </Screen>
   );
-} 
+};
+
+export default ProfileScreen; 

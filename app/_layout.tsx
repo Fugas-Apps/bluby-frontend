@@ -1,17 +1,33 @@
-import { useEffect } from 'react';
-import { Slot, Stack } from 'expo-router';
-import { StatusBar } from 'expo-status-bar';
-import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import { SafeAreaProvider } from 'react-native-safe-area-context';
-import '../global.css';
+import { Stack } from 'expo-router';
+import React from 'react';
+import '../global.css'; // Import global CSS for NativeWind
 
 export default function RootLayout() {
   return (
-    <GestureHandlerRootView style={{ flex: 1 }}>
-      <SafeAreaProvider>
-        <StatusBar style="auto" />
-        <Stack screenOptions={{ headerShown: false }} />
-      </SafeAreaProvider>
-    </GestureHandlerRootView>
+    <Stack
+      screenOptions={{
+        headerShown: true,
+        headerShadowVisible: false,
+        headerBackTitleVisible: false,
+        headerTitleStyle: {
+          fontWeight: 'bold',
+        },
+      }}
+    >
+      {/* Define stack screens */}
+      <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+      <Stack.Screen 
+        name="mealdetail" 
+        // Title is set dynamically in app/mealdetail.tsx
+      />
+      <Stack.Screen 
+        name="mealevaluation" 
+        // Title is set dynamically in app/mealevaluation.tsx
+      />
+      <Stack.Screen 
+        name="scanner" 
+        // Title is set dynamically in app/scanner.tsx
+      />
+    </Stack>
   );
 } 

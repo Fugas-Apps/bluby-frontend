@@ -1,0 +1,132 @@
+import React from 'react';
+import { View, Text, TouchableOpacity, Alert } from 'react-native';
+import { router, useLocalSearchParams, Stack } from 'expo-router';
+import { Ionicons } from '@expo/vector-icons';
+import { Screen } from '~/components/common/Screen';
+import { Card } from '~/components/ui/Card';
+import { Button } from '~/components/ui/Button';
+import { FoodItemCard } from '~/components/common/FoodItemCard';
+import { ProgressBar } from '~/components/ui/ProgressBar';
+import { MealType } from '~/types';
+import { mockMeals } from '~/utils/mockData';
+
+const MacroSummary = ({ mealType }: { mealType: string }) => {
+  const meal = mockMeals[mealType.toLowerCase()];
+  
+  return (
+    <Card className="mb-4">
+      <Text className="text-lg font-bold text-gray-800 mb-3">Nutrition Summary</Text>
+      
+      <View className="mb-3">
+        <View className="flex-row justify-between mb-1">
+          <Text className="text-gray-600">Total Calories</Text>
+          <Text className="font-medium text-gray-800">{meal.totalCalories} kcal</Text>
+        </View>
+      </View>
+      
+      <View className="mb-2">
+        <View className="flex-row justify-between mb-1">
+          <Text className="text-gray-600">Protein</Text>
+          <Text className="font-medium text-gray-800">{meal.totalProtein}g</Text>
+        </View>
+        <ProgressBar 
+          value={meal.totalProtein} 
+          maxValue={150} 
+          showValue={false} 
+          barColor="bg-red-500" 
+        />
+      </View>
+      
+      <View className="mb-2">
+        <View className="flex-row justify-between mb-1">
+          <Text className="text-gray-600">Carbs</Text>
+          <Text className="font-medium text-gray-800">{meal.totalCarbs}g</Text>
+        </View>
+        <ProgressBar 
+          value={meal.totalCarbs} 
+          maxValue={200} 
+          showValue={false} 
+          barColor="bg-yellow-500" 
+        />
+      </View>
+      
+      <View>
+        <View className="flex-row justify-between mb-1">
+          <Text className="text-gray-600">Fat</Text>
+          <Text className="font-medium text-gray-800">{meal.totalFat}g</Text>
+        </View>
+        <ProgressBar 
+          value={meal.totalFat} 
+          maxValue={70} 
+          showValue={false} 
+          barColor="bg-green-500" 
+        />
+      </View>
+    </Card>
+  );
+};
+
+const MealDetailScreen = () => {
+  const params = useLocalSearchParams<{ mealType: string }>();
+  const mealType = params.mealType ?? 'Unknown';
+  
+  const meal = mockMeals[mealType.toLowerCase()] || { items: [], totalCalories: 0 };
+  
+  const handleAddFood = () => {
+    Alert.alert('Add Food', 'Feature not implemented in this UI boilerplate');
+  };
+  
+  const handleAddFoodByPhoto = () => {
+    Alert.alert('Add Food by Photo', 'Feature not implemented in this UI boilerplate');
+  };
+  
+  const handleFinishLogging = () => {
+    router.push({ pathname: '/mealevaluation', params: { mealType }});
+  };
+  
+  return (
+    <>
+      <Stack.Screen options={{ title: `${mealType} Details` }} />
+      <Screen title="" scrollable>
+        <View className="mt-4">
+          <MacroSummary mealType={mealType} />
+          
+          <View className="mb-4 flex-row justify-between">
+            <Button 
+              label="Add Food" 
+              onPress={handleAddFood}
+              className="flex-1 mr-2"
+            />
+            <Button 
+              label="Add by Photo" 
+              variant="outline" 
+              onPress={handleAddFoodByPhoto}
+              className="flex-1 ml-2"
+            />
+          </View>
+          
+          <View className="mb-4">
+            <Text className="text-lg font-bold text-gray-800 mb-2">Food Items</Text>
+            {meal.items.map((item) => (
+              <FoodItemCard 
+                key={item.id} 
+                item={item} 
+                showDetails={true}
+              />
+            ))}
+          </View>
+          
+          <Button 
+            label="Finish Logging" 
+            size="lg"
+            fullWidth
+            onPress={handleFinishLogging}
+            className="mb-6"
+          />
+        </View>
+      </Screen>
+    </>
+  );
+};
+
+export default MealDetailScreen; 

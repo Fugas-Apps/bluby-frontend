@@ -1,5 +1,10 @@
+import React from 'react';
 import { Tabs } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+
+const TabIcon = ({ name, color, size }: { name: any; color: string; size: number }) => {
+  return <Ionicons name={name} size={size} color={color} />;
+};
 
 export default function TabLayout() {
   return (
@@ -16,53 +21,42 @@ export default function TabLayout() {
           fontWeight: '500',
           paddingBottom: 5,
         },
-        headerShown: true,
-        headerShadowVisible: false,
+        headerShown: false,
       }}
     >
       <Tabs.Screen
         name="index"
         options={{
           title: 'Dashboard',
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="home-outline" size={size} color={color} />
-          ),
+          tabBarIcon: ({ color, size }) => <TabIcon name="home-outline" color={color} size={size} />,
         }}
       />
       <Tabs.Screen
         name="pantry"
         options={{
           title: 'Pantry',
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="nutrition-outline" size={size} color={color} />
-          ),
+          tabBarIcon: ({ color, size }) => <TabIcon name="nutrition-outline" color={color} size={size} />,
         }}
       />
       <Tabs.Screen
-        name="meal-plan"
+        name="mealplan"
         options={{
           title: 'Meal Plan',
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="calendar-outline" size={size} color={color} />
-          ),
+          tabBarIcon: ({ color, size }) => <TabIcon name="calendar-outline" color={color} size={size} />,
         }}
       />
       <Tabs.Screen
         name="groups"
         options={{
           title: 'Groups',
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="people-outline" size={size} color={color} />
-          ),
+          tabBarIcon: ({ color, size }) => <TabIcon name="people-outline" color={color} size={size} />,
         }}
       />
       <Tabs.Screen
         name="profile"
         options={{
           title: 'Profile',
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="person-outline" size={size} color={color} />
-          ),
+          tabBarIcon: ({ color, size }) => <TabIcon name="person-outline" color={color} size={size} />,
         }}
       />
     </Tabs>

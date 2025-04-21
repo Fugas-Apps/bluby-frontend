@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, Alert, Image } from 'react-native';
-import { router, Stack } from 'expo-router';
-import { Screen } from '../src/components/common/Screen';
-import { Card } from '../src/components/ui/Card';
-import { Button } from '../src/components/ui/Button';
+import { Screen } from '~/components/common/Screen';
+import { Card } from '~/components/ui/Card';
+import { Button } from '~/components/ui/Button';
+import { mockFoodItems } from '~/utils/mockData';
 import { Ionicons } from '@expo/vector-icons';
+import { router, Stack } from 'expo-router';
 
 // Mock scan result
 const mockScanResult = {
@@ -19,7 +20,7 @@ const mockScanResult = {
   allergensWarning: ['Contains: Wheat, Gluten'],
 };
 
-export default function ScannerScreen() {
+const ScannerScreen = () => {
   const [scanMode, setScanMode] = useState<'barcode' | 'nutrition' | null>(null);
   const [hasResult, setHasResult] = useState<boolean>(false);
   
@@ -43,7 +44,7 @@ export default function ScannerScreen() {
   
   const handleAddToPantry = () => {
     Alert.alert('Success', 'Item added to pantry!', [
-      { text: 'OK', onPress: () => router.replace('/pantry') }
+      { text: 'OK', onPress: () => router.replace('/(tabs)/pantry') }
     ]);
   };
   
@@ -51,31 +52,19 @@ export default function ScannerScreen() {
     Alert.alert('Add to Meal', 'Select a meal to add this item to', [
       { 
         text: 'Breakfast', 
-        onPress: () => router.replace({ 
-          pathname: '/meal-detail', 
-          params: { mealType: 'Breakfast' } 
-        }) 
+        onPress: () => router.push({ pathname: '/mealdetail', params: { mealType: 'Breakfast' } }) 
       },
       { 
         text: 'Lunch', 
-        onPress: () => router.replace({ 
-          pathname: '/meal-detail', 
-          params: { mealType: 'Lunch' } 
-        }) 
+        onPress: () => router.push({ pathname: '/mealdetail', params: { mealType: 'Lunch' } }) 
       },
       { 
         text: 'Dinner', 
-        onPress: () => router.replace({ 
-          pathname: '/meal-detail', 
-          params: { mealType: 'Dinner' } 
-        }) 
+        onPress: () => router.push({ pathname: '/mealdetail', params: { mealType: 'Dinner' } }) 
       },
       { 
         text: 'Snacks', 
-        onPress: () => router.replace({ 
-          pathname: '/meal-detail', 
-          params: { mealType: 'Snacks' } 
-        }) 
+        onPress: () => router.push({ pathname: '/mealdetail', params: { mealType: 'Snacks' } }) 
       },
       { text: 'Cancel', style: 'cancel' }
     ]);
@@ -240,8 +229,8 @@ export default function ScannerScreen() {
   
   return (
     <>
-      <Stack.Screen options={{ title: "Food Scanner" }} />
-      <Screen scrollable>
+      <Stack.Screen options={{ title: "Scan Food" }} />
+      <Screen title="" scrollable>
         <View className="mt-4">
           {renderScanArea()}
           
@@ -273,4 +262,6 @@ export default function ScannerScreen() {
       </Screen>
     </>
   );
-} 
+};
+
+export default ScannerScreen; 

@@ -1,9 +1,9 @@
-import React from 'react';
-import { View, Text, TouchableOpacity, Alert } from 'react-native';
-import { Screen } from '../../src/components/common/Screen';
-import { Card } from '../../src/components/ui/Card';
-import { Button } from '../../src/components/ui/Button';
-import { mockGroups } from '../../src/utils/mockData';
+import React, { useState } from 'react';
+import { View, Text, TouchableOpacity, FlatList, Alert } from 'react-native';
+import { Screen } from '~/components/common/Screen';
+import { Card } from '~/components/ui/Card';
+import { Button } from '~/components/ui/Button';
+import { mockGroups } from '~/utils/mockData';
 import { Ionicons } from '@expo/vector-icons';
 
 const GroupMemberItem = ({ name, isActive = false }: { name: string; isActive?: boolean }) => {
@@ -71,9 +71,10 @@ const GroupCard = ({ group, onPress }: { group: typeof mockGroups[0]; onPress: (
   );
 };
 
-export default function GroupsScreen() {
+const GroupsScreen = () => {
   const handleGroupPress = (groupId: string) => {
     Alert.alert('Group Details', 'Feature not implemented in this UI boilerplate');
+    // Potential navigation logic here would use router.push(`/group/${groupId}`)
   };
   
   const handleCreateGroup = () => {
@@ -138,4 +139,6 @@ export default function GroupsScreen() {
       </View>
     </Screen>
   );
-} 
+};
+
+export default GroupsScreen; 

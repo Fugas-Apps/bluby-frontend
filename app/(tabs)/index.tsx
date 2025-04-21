@@ -1,12 +1,12 @@
 import React from 'react';
-import { View, Text, TouchableOpacity } from 'react-native';
-import { router } from 'expo-router';
-import { Screen } from '../../src/components/common/Screen';
-import { Card } from '../../src/components/ui/Card';
-import { ProgressBar } from '../../src/components/ui/ProgressBar';
-import { FoodItemCard } from '../../src/components/common/FoodItemCard';
-import { MealType } from '../../src/types';
-import { mockMeals } from '../../src/utils/mockData';
+import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
+import { Link, router } from 'expo-router';
+import { Screen } from '~/components/common/Screen';
+import { Card } from '~/components/ui/Card';
+import { ProgressBar } from '~/components/ui/ProgressBar';
+import { FoodItemCard } from '~/components/common/FoodItemCard';
+import { MealType } from '~/types';
+import { mockMeals } from '~/utils/mockData';
 import { Ionicons } from '@expo/vector-icons';
 
 const DailyGoals = () => {
@@ -50,40 +50,50 @@ const DailyGoals = () => {
 const MealSection = ({ mealType }: { mealType: MealType }) => {
   const meal = mockMeals[mealType.toLowerCase()];
 
-  const handleMealPress = () => {
-    router.push({ pathname: '/meal-detail', params: { mealType } });
-  };
-
   return (
     <Card className="mb-4" variant="outlined">
-      <TouchableOpacity
-        className="flex-row justify-between items-center mb-2"
-        onPress={handleMealPress}
+      <Link
+        href={{
+          pathname: '/mealdetail',
+          params: { mealType: mealType }
+        }}
+        asChild
       >
-        <Text className="text-lg font-bold text-gray-800">{mealType}</Text>
-        <View className="flex-row items-center">
-          <Text className="text-gray-500 mr-1">{meal.totalCalories} kcal</Text>
-          <Ionicons name="chevron-forward" size={18} color="#9ca3af" />
-        </View>
-      </TouchableOpacity>
+        <TouchableOpacity
+          className="flex-row justify-between items-center mb-2"
+        >
+          <Text className="text-lg font-bold text-gray-800">{mealType}</Text>
+          <View className="flex-row items-center">
+            <Text className="text-gray-500 mr-1">{meal.totalCalories} kcal</Text>
+            <Ionicons name="chevron-forward" size={18} color="#9ca3af" />
+          </View>
+        </TouchableOpacity>
+      </Link>
 
       {meal.items.slice(0, 2).map((item) => (
         <FoodItemCard key={item.id} item={item} showDetails={false} />
       ))}
 
       {meal.items.length > 2 && (
-        <TouchableOpacity 
-          className="mt-2 items-center py-2 border-t border-gray-100"
-          onPress={handleMealPress}
+        <Link
+          href={{
+            pathname: '/mealdetail',
+            params: { mealType: mealType }
+          }}
+          asChild
         >
-          <Text className="text-blue-500 font-medium">View all {meal.items.length} items</Text>
-        </TouchableOpacity>
+          <TouchableOpacity
+            className="mt-2 items-center py-2 border-t border-gray-100"
+          >
+            <Text className="text-blue-500 font-medium">View all {meal.items.length} items</Text>
+          </TouchableOpacity>
+        </Link>
       )}
     </Card>
   );
 };
 
-export default function DashboardScreen() {
+const DashboardScreen = () => {
   const handleScanPress = () => {
     router.push('/scanner');
   };
@@ -111,4 +121,6 @@ export default function DashboardScreen() {
       </View>
     </Screen>
   );
-} 
+};
+
+export default DashboardScreen; 
