@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, FlatList, Alert } from 'react-native';
-import { Screen } from '~/components/common/Screen';
-import { Card } from '~/components/ui/Card';
-import { Button } from '~/components/ui/Button';
-import { mockGroups } from '~/utils/mockData';
+import { Screen } from '@components/common/Screen';
+import { Card } from '@components/ui/Card';
+import { Button } from '@components/ui/Button';
+import { Input } from '@components/ui/Input';
+import { Dialog } from '@components/ui/Dialog';
+import { mockGroups } from '@utils/mockData';
 import { Ionicons } from '@expo/vector-icons';
 
 const GroupMemberItem = ({ name, isActive = false }: { name: string; isActive?: boolean }) => {

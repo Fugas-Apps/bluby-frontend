@@ -1,12 +1,12 @@
 import React from 'react';
 import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
 import { Link, router } from 'expo-router';
-import { Screen } from '~/components/common/Screen';
-import { Card } from '~/components/ui/Card';
-import { ProgressBar } from '~/components/ui/ProgressBar';
-import { FoodItemCard } from '~/components/common/FoodItemCard';
-import { MealType } from '~/types';
-import { mockMeals } from '~/utils/mockData';
+import { Screen } from '@components/common/Screen';
+import { Card } from '@components/ui/Card';
+import { ProgressBar } from '@components/ui/ProgressBar';
+import { FoodItemCard } from '@components/common/FoodItemCard';
+import { MealType } from 'types';
+import { mockMeals, mockRecipes, mockTips } from '@utils/mockData';
 import { Ionicons } from '@expo/vector-icons';
 
 const DailyGoals = () => {
@@ -49,6 +49,10 @@ const DailyGoals = () => {
 
 const MealSection = ({ mealType }: { mealType: MealType }) => {
   const meal = mockMeals[mealType.toLowerCase()];
+
+  if (!meal) {
+    return null;
+  }
 
   return (
     <Card className="mb-4" variant="outlined">

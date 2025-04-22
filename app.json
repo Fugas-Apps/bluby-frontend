@@ -1,31 +1,29 @@
 {
   "expo": {
-    "name": "my-expo-app",
-    "slug": "my-expo-app",
+    "name": "bluby",
+    "slug": "bluby",
     "version": "1.0.0",
-    "scheme": "my-expo-app",
-
+    "scheme": "bluby",
     "web": {
       "favicon": "./assets/favicon.png"
     },
-
     "experiments": {
       "tsconfigPaths": true
     },
-
-    "plugins": ["expo-router"],
-
+    "plugins": [
+      "expo-router"
+    ],
     "orientation": "portrait",
     "icon": "./assets/icon.png",
-
     "userInterfaceStyle": "light",
-
     "splash": {
       "image": "./assets/splash.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
-    "assetBundlePatterns": ["**/*"],
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "ios": {
       "supportsTablet": true
     },
@@ -35,6 +33,15 @@
         "backgroundColor": "#ffffff"
       },
       "package": "com.bluby.myexpoapp"
-    }
+    },
+    "extra": {
+      "router": {
+        "origin": false
+      },
+      "eas": {
+        "projectId": "df206695-b34a-4a42-b4b1-1a1849444715"
+      }
+    },
+    "owner": "thejorgg"
   }
 }

@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, Alert, Image } from 'react-native';
-import { Screen } from '~/components/common/Screen';
-import { Card } from '~/components/ui/Card';
-import { Button } from '~/components/ui/Button';
-import { mockFoodItems } from '~/utils/mockData';
+import { Screen } from '@components/common/Screen';
+import { Card } from '@components/ui/Card';
+import { Button } from '@components/ui/Button';
+import { mockFoodItems } from '@utils/mockData';
 import { Ionicons } from '@expo/vector-icons';
 import { router, Stack } from 'expo-router';
 

@@ -1,12 +1,12 @@
 import React from 'react';
 import { View, Text, Alert } from 'react-native';
 import { router, useLocalSearchParams, Stack } from 'expo-router';
-import { Screen } from '../src/components/common/Screen';
-import { Card } from '../src/components/ui/Card';
-import { ProgressBar } from '../src/components/ui/ProgressBar';
-import { Button } from '../src/components/ui/Button';
-import { MealType } from '../src/types';
-import { mockMeals, mockUserProfile } from '../src/utils/mockData';
+import { Screen } from '@components/common/Screen';
+import { Card } from '@components/ui/Card';
+import { ProgressBar } from '@components/ui/ProgressBar';
+import { Button } from '@components/ui/Button';
+import { MealType } from 'src/types';
+import { mockMeals, mockUserProfile } from '@utils/mockData';
 import { Ionicons } from '@expo/vector-icons';
 
 const CircularProgress = ({ 

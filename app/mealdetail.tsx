@@ -2,13 +2,13 @@ import React from 'react';
 import { View, Text, TouchableOpacity, Alert } from 'react-native';
 import { router, useLocalSearchParams, Stack } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { Screen } from '~/components/common/Screen';
-import { Card } from '~/components/ui/Card';
-import { Button } from '~/components/ui/Button';
-import { FoodItemCard } from '~/components/common/FoodItemCard';
-import { ProgressBar } from '~/components/ui/ProgressBar';
-import { MealType } from '~/types';
-import { mockMeals } from '~/utils/mockData';
+import { Screen } from '@components/common/Screen';
+import { Card } from '@components/ui/Card';
+import { Button } from '@components/ui/Button';
+import { FoodItemCard } from '@components/common/FoodItemCard';
+import { ProgressBar } from '@components/ui/ProgressBar';
+import { MealType } from 'src/types';
+import { mockMeals } from '@utils/mockData';
 
 const MacroSummary = ({ mealType }: { mealType: string }) => {
   const meal = mockMeals[mealType.toLowerCase()];
@@ -66,11 +66,10 @@ const MacroSummary = ({ mealType }: { mealType: string }) => {
   );
 };
 
-const MealDetailScreen = () => {
-  const params = useLocalSearchParams<{ mealType: string }>();
-  const mealType = params.mealType ?? 'Unknown';
-  
-  const meal = mockMeals[mealType.toLowerCase()] || { items: [], totalCalories: 0 };
+export default function MealDetailScreen() {
+  const params = useLocalSearchParams<{ mealType: MealType }>();
+  const mealType = params.mealType as MealType;
+  const meal = mockMeals[mealType.toLowerCase()];
   
   const handleAddFood = () => {
     Alert.alert('Add Food', 'Feature not implemented in this UI boilerplate');
@@ -81,13 +80,16 @@ const MealDetailScreen = () => {
   };
   
   const handleFinishLogging = () => {
-    router.push({ pathname: '/mealevaluation', params: { mealType }});
+    router.push({
+      pathname: '/meal-evaluation',
+      params: { mealType }
+    });
   };
   
   return (
     <>
       <Stack.Screen options={{ title: `${mealType} Details` }} />
-      <Screen title="" scrollable>
+      <Screen scrollable>
         <View className="mt-4">
           <MacroSummary mealType={mealType} />
           
@@ -127,6 +129,4 @@ const MealDetailScreen = () => {
       </Screen>
     </>
   );
-};
-
-export default MealDetailScreen; 
+} 

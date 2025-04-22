@@ -1,13 +1,28 @@
 module.exports = function (api) {
   api.cache(true);
-  const plugins = [
-    // Required for expo-router - Removed as it's included in babel-preset-expo >= SDK 50
-    // 'expo-router/babel',
-  ];
 
   return {
-    presets: [['babel-preset-expo', { jsxImportSource: 'nativewind' }], 'nativewind/babel'],
-
-    plugins,
+    presets: [["babel-preset-expo", { jsxImportSource: "nativewind" }], "nativewind/babel"],
+    plugins: [
+      [
+        "module-resolver",
+        {
+          root: ["./src"],
+          alias: {
+            "~": "./src",
+            "@components": "./src/components",
+            "@layouts": "./src/layouts",
+            "@stores": "./src/stores",
+            "@utils": "./src/utils",
+            "@assets": "./assets",
+            "@api": "./src/api",
+            "@models": "./src/models",
+            "@hooks": "./src/hooks",
+          },
+          extensions: [".js", ".jsx", ".ts", ".tsx", ".android.js", ".android.tsx", ".ios.js", ".ios.tsx", ".json"],
+        },
+      ],
+      ["react-native-reanimated/plugin"],
+    ],
   };
 };

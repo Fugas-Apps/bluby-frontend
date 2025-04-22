@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, Alert, FlatList } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { Screen } from '~/components/common/Screen';
-import { Card } from '~/components/ui/Card';
-import { Button } from '~/components/ui/Button';
-import { mockPantryItems } from '~/utils/mockData';
+import { Screen } from '@components/common/Screen';
+import { Card } from '@components/ui/Card';
+import { Button } from '@components/ui/Button';
+import { mockPantryItems } from '@utils/mockData';
 import { router } from 'expo-router';
 
 const PantryItemCard = ({ item, onPress }: { 

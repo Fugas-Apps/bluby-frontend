@@ -8,7 +8,7 @@ export default function RootLayout() {
       screenOptions={{
         headerShown: true,
         headerShadowVisible: false,
-        headerBackTitleVisible: false,
+        headerBackVisible: false,
         headerTitleStyle: {
           fontWeight: 'bold',
         },
@@ -17,12 +17,12 @@ export default function RootLayout() {
       {/* Define stack screens */}
       <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
       <Stack.Screen 
-        name="mealdetail" 
-        // Title is set dynamically in app/mealdetail.tsx
+        name="meal-detail"
+        // Title is set dynamically in app/meal-detail.tsx
       />
       <Stack.Screen 
-        name="mealevaluation" 
-        // Title is set dynamically in app/mealevaluation.tsx
+        name="meal-evaluation"
+        // Title is set dynamically in app/meal-evaluation.tsx
       />
       <Stack.Screen 
         name="scanner" 
