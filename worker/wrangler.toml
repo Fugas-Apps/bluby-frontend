@@ -1,0 +1,22 @@
+name = "bluby-backend"
+main = "src/index.ts"
+compatibility_date = "2025-07-21"
+compatibility_flags = ["nodejs_compat"]
+
+[build]
+command = "npm run build"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "bluby-db"
+database_id = "cf600ae4-f3fc-474f-9291-689997832ad4"
+
+[[r2_buckets]]
+binding = "bluby_food_images"
+bucket_name = "bluby-food-images"
+preview_bucket_name = "bluby-food-images-preview"
+
+[[r2_buckets]]
+binding = "bluby_user_avatars"
+bucket_name = "bluby-user-avatars"
+preview_bucket_name = "bluby-user-avatars-preview"
