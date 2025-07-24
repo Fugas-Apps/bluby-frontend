@@ -6,8 +6,7 @@
  * OpenAPI spec version: 1.0.0
  */
 
-export type StatusEnum = typeof StatusEnum[keyof typeof StatusEnum];
-
+export type StatusEnum = (typeof StatusEnum)[keyof typeof StatusEnum];
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare
 export const StatusEnum = {

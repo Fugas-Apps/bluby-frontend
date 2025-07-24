@@ -1,4 +1,4 @@
-import React from 'react';
+import * as React from 'react';
 import { View, Text, TouchableOpacity, Alert } from 'react-native';
 import { Screen } from '../../src/components/common/Screen';
 import { Card } from '../../src/components/ui/Card';
@@ -138,4 +138,4 @@ export default function GroupsScreen() {
       </View>
     </Screen>
   );
-} 
+}

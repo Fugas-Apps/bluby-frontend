@@ -24,7 +24,7 @@ export default function TabLayout() {
         name="index"
         options={{
           title: 'Dashboard',
-          tabBarIcon: ({ color, size }) => (
+          tabBarIcon: ({ color, size }: { color: string; size: number }) => (
             <Ionicons name="home-outline" size={size} color={color} />
           ),
         }}
@@ -33,7 +33,7 @@ export default function TabLayout() {
         name="pantry"
         options={{
           title: 'Pantry',
-          tabBarIcon: ({ color, size }) => (
+          tabBarIcon: ({ color, size }: { color: string; size: number }) => (
             <Ionicons name="nutrition-outline" size={size} color={color} />
           ),
         }}
@@ -42,7 +42,7 @@ export default function TabLayout() {
         name="meal-plan"
         options={{
           title: 'Meal Plan',
-          tabBarIcon: ({ color, size }) => (
+          tabBarIcon: ({ color, size }: { color: string; size: number }) => (
             <Ionicons name="calendar-outline" size={size} color={color} />
           ),
         }}
@@ -51,7 +51,7 @@ export default function TabLayout() {
         name="groups"
         options={{
           title: 'Groups',
-          tabBarIcon: ({ color, size }) => (
+          tabBarIcon: ({ color, size }: { color: string; size: number }) => (
             <Ionicons name="people-outline" size={size} color={color} />
           ),
         }}
@@ -60,11 +60,29 @@ export default function TabLayout() {
         name="profile"
         options={{
           title: 'Profile',
-          tabBarIcon: ({ color, size }) => (
+          tabBarIcon: ({ color, size }: { color: string; size: number }) => (
             <Ionicons name="person-outline" size={size} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="test-api"
+        options={{
+          title: 'Test API',
+          tabBarIcon: ({ color, size }: { color: string; size: number }) => (
+            <Ionicons name="bug-outline" size={size} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="test-auth"
+        options={{
+          title: 'Test Auth',
+          tabBarIcon: ({ color, size }: { color: string; size: number }) => (
+            <Ionicons name="key-outline" size={size} color={color} />
           ),
         }}
       />
     </Tabs>
   );
-} 
+}

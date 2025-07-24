@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import * as React from 'react';
 import { View, Text, TouchableOpacity, Alert, FlatList } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
@@ -48,7 +48,7 @@ const PantryItemCard = ({ item, onPress }: {
 };
 
 export default function PantryScreen() {
-  const [showScanned, setShowScanned] = useState<boolean>(false);
+  const [showScanned, setShowScanned] = React.useState<boolean>(false);
   
   const filteredItems = showScanned 
     ? mockPantryItems.filter(item => item.isScanned)
@@ -117,4 +117,4 @@ export default function PantryScreen() {
       </View>
     </Screen>
   );
-} 
+}

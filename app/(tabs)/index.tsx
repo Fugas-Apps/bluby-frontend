@@ -1,4 +1,4 @@
-import React from 'react';
+import * as React from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 import { router } from 'expo-router';
 import { Screen } from '../../src/components/common/Screen';
@@ -111,4 +111,4 @@ export default function DashboardScreen() {
       </View>
     </Screen>
   );
-} 
+}

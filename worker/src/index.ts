@@ -19,7 +19,7 @@ interface Env {
 const router = Router();
 
 // Authentication middleware
-const withAuth = async (request: Request & { params?: any }, env: Env) => {
+const withAuth = async (request: Request, env: Env) => {
   const authHeader = request.headers.get('Authorization');
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
     return json({ error: 'Missing or invalid authorization token' }, { status: 401 });
@@ -29,6 +29,80 @@ const withAuth = async (request: Request & { params?: any }, env: Env) => {
   const token = authHeader.substring(7);
   // request.user = { id: 'user_id_from_token' }; // This would be implemented properly
 };
+
+// === AUTHENTICATION ENDPOINTS ===
+
+// Login endpoint
+router.post('/auth/login', async (request: any, env: Env) => {
+  try {
+    const body = await request.json();
+    const { email, password } = body;
+
+    // TODO: Implement proper authentication logic
+    // This is a mock implementation - in reality, you'd verify credentials against your database
+    if (!email || !password) {
+      return json({ message: 'Email and password are required' }, { status: 400 });
+    }
+
+    // Mock user validation
+    // In reality, you'd hash and compare passwords, etc.
+    const mockUser = {
+      id: 'user-123',
+      email: email,
+      name: 'Mock User'
+    };
+
+    // Generate a mock JWT token
+    const mockToken = 'mock-jwt-token-' + Date.now();
+
+    return json({
+      token: mockToken,
+      user: mockUser
+    });
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    return json({ message: 'Login failed: ' + errorMessage }, { status: 500 });
+  }
+});
+
+// Register endpoint
+router.post('/auth/register', async (request: any, env: Env) => {
+  try {
+    const body = await request.json();
+    const { email, password, name } = body;
+
+    // TODO: Implement proper registration logic
+    // This is a mock implementation - in reality, you'd hash passwords, check for duplicates, etc.
+    if (!email || !password || !name) {
+      return json({ message: 'Email, password, and name are required' }, { status: 400 });
+    }
+
+    // Mock user creation
+    const mockUser = {
+      id: 'user-' + Date.now(),
+      email: email,
+      name: name
+    };
+
+    // Generate a mock JWT token
+    const mockToken = 'mock-jwt-token-' + Date.now();
+
+    return json({
+      token: mockToken,
+      user: mockUser
+    });
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    return json({ message: 'Registration failed: ' + errorMessage }, { status: 500 });
+  }
+});
+
+// Logout endpoint
+router.post('/auth/logout', async (request: any, env: Env) => {
+  // TODO: Implement proper logout logic (invalidate token, etc.)
+  // For now, this is just a placeholder
+  return json({ message: 'Logged out successfully' });
+});
 
 // Root endpoint
 router.get('/', () => {

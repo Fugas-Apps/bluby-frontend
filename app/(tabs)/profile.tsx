@@ -1,9 +1,9 @@
-import React from 'react';
+import * as React from 'react';
 import { View, Text, TouchableOpacity, Alert, ScrollView } from 'react-native';
 import { Screen } from '../../src/components/common/Screen';
 import { Card } from '../../src/components/ui/Card';
 import { Button } from '../../src/components/ui/Button';
-import { mockUserProfile } from '../../src/utils/mockData';
+import { useGetProfile } from '../../src/api/profiles/profiles';
 import { Ionicons } from '@expo/vector-icons';
 
 const ProfileSection = ({ 
@@ -89,6 +89,10 @@ const SettingsItem = ({
 };
 
 export default function ProfileScreen() {
+  // For now, we'll use a mock user ID. In a real app, this would come from authentication.
+  const userId = 1;
+  const { data: profileData, isLoading, error } = useGetProfile(userId);
+
   const handleEditProfile = () => {
     Alert.alert('Edit Profile', 'Feature not implemented in this UI boilerplate');
   };
@@ -109,8 +113,8 @@ export default function ProfileScreen() {
     Alert.alert(setting, 'Feature not implemented in this UI boilerplate');
   };
   
-  const renderGoalIcon = () => {
-    switch (mockUserProfile.goal) {
+  const renderGoalIcon = (goal: string) => {
+    switch (goal) {
       case 'weight-loss':
         return 'trending-down-outline';
       case 'muscle-gain':
@@ -127,7 +131,37 @@ export default function ProfileScreen() {
   const formatGoalText = (goal: string) => {
     return goal.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
   };
-  
+
+  if (isLoading) {
+    return (
+      <Screen title="Profile" scrollable>
+        <View className="mt-4 items-center justify-center flex-1">
+          <Text className="text-gray-600">Loading profile...</Text>
+        </View>
+      </Screen>
+    );
+  }
+
+  if (error) {
+    return (
+      <Screen title="Profile" scrollable>
+        <View className="mt-4 items-center justify-center flex-1">
+          <Text className="text-red-600">Error loading profile</Text>
+          <Text className="text-gray-600 text-sm mt-2">{JSON.stringify(error)}</Text>
+        </View>
+      </Screen>
+    );
+  }
+
+  // Mock data for now since the API doesn't return all the fields yet
+  const mockUserProfile = {
+    name: profileData?.body?.username || 'User',
+    goal: 'health',
+    dietaryPreferences: ['High Protein', 'Low Carb', 'Mediterranean'],
+    allergies: ['Peanuts', 'Shellfish'],
+    intolerances: ['Lactose', 'Gluten']
+  };
+
   return (
     <Screen title="Profile" scrollable>
       <View className="mt-4">
@@ -140,7 +174,7 @@ export default function ProfileScreen() {
           <Text className="text-xl font-bold text-gray-800 mb-1">{mockUserProfile.name}</Text>
           
           <View className="flex-row items-center mb-4">
-            <Ionicons name={renderGoalIcon()} size={16} color="#3b82f6" />
+            <Ionicons name={renderGoalIcon(mockUserProfile.goal)} size={16} color="#3b82f6" />
             <Text className="text-blue-500 ml-1 font-medium">
               Goal: {formatGoalText(mockUserProfile.goal)}
             </Text>
@@ -156,7 +190,7 @@ export default function ProfileScreen() {
         
         <ProfileSection title="Dietary Preferences">
           <View className="flex-row flex-wrap mb-2">
-            {mockUserProfile.dietaryPreferences.map((pref, index) => (
+            {mockUserProfile.dietaryPreferences.map((pref: string, index: number) => (
               <PreferenceTag key={index} label={pref} />
             ))}
           </View>
@@ -173,7 +207,7 @@ export default function ProfileScreen() {
         <ProfileSection title="Allergies & Intolerances">
           <Text className="text-gray-600 mb-2">Allergies</Text>
           <View className="flex-row flex-wrap mb-4">
-            {mockUserProfile.allergies.map((allergy, index) => (
+            {mockUserProfile.allergies.map((allergy: string, index: number) => (
               <WarningTag key={index} label={allergy} />
             ))}
             <TouchableOpacity 
@@ -187,7 +221,7 @@ export default function ProfileScreen() {
           
           <Text className="text-gray-600 mb-2">Intolerances</Text>
           <View className="flex-row flex-wrap">
-            {mockUserProfile.intolerances.map((intolerance, index) => (
+            {mockUserProfile.intolerances.map((intolerance: string, index: number) => (
               <WarningTag key={index} label={intolerance} />
             ))}
             <TouchableOpacity 
@@ -247,4 +281,4 @@ export default function ProfileScreen() {
       </View>
     </Screen>
   );
-} 
+}
