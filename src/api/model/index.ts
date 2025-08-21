@@ -6,15 +6,5 @@
  * OpenAPI spec version: 1.0.0
  */
 
-export * from './hTTPValidationError';
 export * from './profileDetails';
-export * from './profileDetailsBirthDate';
-export * from './profileDetailsProfilePicture';
-export * from './profileUpdate';
-export * from './profileUpdateBio';
-export * from './profileUpdateBirthDate';
-export * from './profileUpdatePhoneNumber';
-export * from './statusEnum';
 export * from './successResponseProfileDetails';
-export * from './validationError';
-export * from './validationErrorLocItem';
