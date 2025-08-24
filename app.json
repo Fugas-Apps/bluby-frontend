@@ -1,8 +1,9 @@
 {
   "expo": {
-    "name": "my-expo-app",
-    "slug": "my-expo-app",
-    "version": "1.0.0",
+    "name": "blubyai",
+    "slug": "blubyai",
+    "version": "0.1.0",
+    "scheme": "com.blubyai.android",
     "web": {
       "favicon": "./assets/favicon.png"
     },
@@ -34,6 +35,12 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
+      },
+      "package": "com.blubyai.android"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "77739497-9d29-4bc8-a54c-093b22e25ce2"
       }
     }
   }

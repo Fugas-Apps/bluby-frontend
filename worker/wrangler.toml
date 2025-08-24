@@ -32,3 +32,6 @@ id = "002a1c2caba5491ca4a82d554c8b22dc"
 ALLOWED_ORIGINS = "https://api.blubyai.com"
 # Set ALLOW_ALL_ORIGINS = "true" to enable '*' (not recommended when using cookies)
 # ALLOW_ALL_ORIGINS = "false"
+
+[observability.logs]
+enabled = true
