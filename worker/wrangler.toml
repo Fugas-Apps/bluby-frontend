@@ -1,6 +1,6 @@
 name = "bluby-backend"
 main = "src/index.ts"
-compatibility_date = "2025-07-21"
+compatibility_date = "2025-07-12"
 compatibility_flags = ["nodejs_compat"]
 
 [ai]
@@ -23,3 +23,12 @@ preview_bucket_name = "bluby-food-images-preview"
 binding = "bluby_user_avatars"
 bucket_name = "bluby-user-avatars"
 preview_bucket_name = "bluby-user-avatars-preview"
+
+[[kv_namespaces]]
+binding = "bluby_user_sessions"
+id = "002a1c2caba5491ca4a82d554c8b22dc"
+
+[vars]
+ALLOWED_ORIGINS = "https://api.blubyai.com"
+# Set ALLOW_ALL_ORIGINS = "true" to enable '*' (not recommended when using cookies)
+# ALLOW_ALL_ORIGINS = "false"

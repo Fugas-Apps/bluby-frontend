@@ -2,19 +2,30 @@ import * as React from 'react';
 import { View, Text, Alert, ScrollView } from 'react-native';
 import { Screen } from '../../src/components/common/Screen';
 import { Button } from '../../src/components/ui/Button';
-import { useGetProfile } from '../../src/api/profiles/profiles';
+import { useGetV1ProfilesUserId } from '../../src/api/profiles/profiles';
 
 export default function TestAPIScreen() {
   const [userId, setUserId] = React.useState<number>(1);
-  const { data, isLoading, error, refetch } = useGetProfile(userId);
+  type ProfileResponse = {
+    status?: number;
+    body?: {
+      user_id?: number;
+      username?: string;
+      private?: boolean;
+      allow_contact_search?: boolean;
+    } | null;
+  };
+
+  const { data, isLoading, error, refetch } = useGetV1ProfilesUserId<ProfileResponse, unknown>(userId);
 
   const handleTestAPI = async () => {
     try {
       const result = await refetch();
       if (result.data) {
         Alert.alert('Success', `Profile data received! Check the display below.`);
-      } else if (result.error) {
-        Alert.alert('Error', `API Error: ${JSON.stringify(result.error)}`);
+      } else if ((result as any).error) {
+        // react-query's refetch result may carry error in different shapes; stringify defensively
+        Alert.alert('Error', `API Error: ${JSON.stringify((result as any).error)}`);
       }
     } catch (err) {
       Alert.alert('Error', `Request failed: ${err}`);
@@ -39,13 +50,13 @@ export default function TestAPIScreen() {
           className="mb-4"
         />
 
-        {isLoading && (
+  {isLoading && (
           <View className="p-4 bg-yellow-50 rounded-lg mb-4">
             <Text className="text-yellow-800 text-center">Loading profile data...</Text>
           </View>
         )}
 
-        {data && (
+  {data != null && (
           <View className="p-4 bg-green-50 rounded-lg mb-4">
             <Text className="text-green-800 font-bold mb-2">Success! Profile Data:</Text>
             <View className="bg-white p-3 rounded">
@@ -68,7 +79,7 @@ export default function TestAPIScreen() {
           </View>
         )}
 
-        {error && (
+  {error != null && (
           <View className="p-4 bg-red-50 rounded-lg mb-4">
             <Text className="text-red-800 font-bold mb-2">Error:</Text>
             <View className="bg-white p-3 rounded">

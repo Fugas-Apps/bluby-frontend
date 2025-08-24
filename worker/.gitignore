@@ -1,0 +1,17 @@
+node_modules/
+dist/
+.drizzle_applied.json
+*.tmp
+.wrangler/
+.env
+.env.local
+.env.*.local
+.DS_Store
+npm-debug.log*
+yarn-error.log*
+.pnp.*
+.pnp.json
+.vscode/
+.idea/
+*.code-workspace
+coverage/

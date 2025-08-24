@@ -89,7 +89,6 @@ export const AppNavigator = () => {
         screenOptions={{
           headerShown: true,
           headerShadowVisible: false,
-          headerBackTitleVisible: false,
           headerTitleStyle: {
             fontWeight: 'bold',
           },

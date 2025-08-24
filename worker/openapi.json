@@ -16,6 +16,9 @@
       "post": {
         "summary": "Create login",
         "description": "Create operation for /auth/login",
+        "tags": [
+          "auth"
+        ],
         "responses": {
           "200": {
             "description": "Successful response"
@@ -36,6 +39,9 @@
       "post": {
         "summary": "Create register",
         "description": "Create operation for /auth/register",
+        "tags": [
+          "auth"
+        ],
         "responses": {
           "200": {
             "description": "Successful response"
@@ -56,6 +62,9 @@
       "post": {
         "summary": "Create logout",
         "description": "Create operation for /auth/logout",
+        "tags": [
+          "auth"
+        ],
         "responses": {
           "200": {
             "description": "Successful response"
@@ -72,11 +81,13 @@
         }
       }
     },
-    "/v1/profiles/:userId": {},
     "/v1/profiles/{userId}": {
       "get": {
         "summary": "Get a user profile by ID",
         "description": "Retrieve operation for /v1/profiles/:userId",
+        "tags": [
+          "profiles"
+        ],
         "parameters": [
           {
             "name": "userId",
@@ -105,6 +116,9 @@
       "patch": {
         "summary": "Update a user profile",
         "description": "Partially update operation for /v1/profiles/:userId",
+        "tags": [
+          "profiles"
+        ],
         "parameters": [
           {
             "name": "userId",
@@ -135,6 +149,9 @@
       "get": {
         "summary": "Get meals",
         "description": "Retrieve operation for /v1/meals/",
+        "tags": [
+          "meals"
+        ],
         "responses": {
           "200": {
             "description": "Successful response"
@@ -153,174 +170,8 @@
       "post": {
         "summary": "Create meals",
         "description": "Create operation for /v1/meals/",
-        "responses": {
-          "200": {
-            "description": "Successful response"
-          },
-          "400": {
-            "description": "Bad request"
-          },
-          "404": {
-            "description": "Not found"
-          },
-          "500": {
-            "description": "Internal server error"
-          }
-        }
-      }
-    },
-    "/v1/meals/:mealId": {},
-    "/v1/meals/{mealId}": {
-      "get": {
-        "summary": "Get specific meal",
-        "description": "Retrieve operation for /v1/meals/:mealId",
-        "parameters": [
-          {
-            "name": "mealId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful response"
-          },
-          "400": {
-            "description": "Bad request"
-          },
-          "404": {
-            "description": "Not found"
-          },
-          "500": {
-            "description": "Internal server error"
-          }
-        }
-      }
-    },
-    "/v1/meal_plans/": {
-      "get": {
-        "summary": "Get meal_plans",
-        "description": "Retrieve operation for /v1/meal_plans/",
-        "responses": {
-          "200": {
-            "description": "Successful response"
-          },
-          "400": {
-            "description": "Bad request"
-          },
-          "404": {
-            "description": "Not found"
-          },
-          "500": {
-            "description": "Internal server error"
-          }
-        }
-      },
-      "post": {
-        "summary": "Create meal_plans",
-        "description": "Create operation for /v1/meal_plans/",
-        "responses": {
-          "200": {
-            "description": "Successful response"
-          },
-          "400": {
-            "description": "Bad request"
-          },
-          "404": {
-            "description": "Not found"
-          },
-          "500": {
-            "description": "Internal server error"
-          }
-        }
-      }
-    },
-    "/v1/meal_plans/:planId": {},
-    "/v1/meal_plans/{planId}": {
-      "get": {
-        "summary": "Get specific meal plan",
-        "description": "Retrieve operation for /v1/meal_plans/:planId",
-        "parameters": [
-          {
-            "name": "planId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful response"
-          },
-          "400": {
-            "description": "Bad request"
-          },
-          "404": {
-            "description": "Not found"
-          },
-          "500": {
-            "description": "Internal server error"
-          }
-        }
-      }
-    },
-    "/v1/pantry/": {
-      "get": {
-        "summary": "Get pantry",
-        "description": "Retrieve operation for /v1/pantry/",
-        "responses": {
-          "200": {
-            "description": "Successful response"
-          },
-          "400": {
-            "description": "Bad request"
-          },
-          "404": {
-            "description": "Not found"
-          },
-          "500": {
-            "description": "Internal server error"
-          }
-        }
-      },
-      "post": {
-        "summary": "Create pantry",
-        "description": "Create operation for /v1/pantry/",
-        "responses": {
-          "200": {
-            "description": "Successful response"
-          },
-          "400": {
-            "description": "Bad request"
-          },
-          "404": {
-            "description": "Not found"
-          },
-          "500": {
-            "description": "Internal server error"
-          }
-        }
-      }
-    },
-    "/v1/pantry/:itemId": {},
-    "/v1/pantry/{itemId}": {
-      "delete": {
-        "summary": "Remove a pantry item",
-        "description": "Delete operation for /v1/pantry/:itemId",
-        "parameters": [
-          {
-            "name": "itemId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer"
-            }
-          }
+        "tags": [
+          "meals"
         ],
         "responses": {
           "200": {
@@ -342,6 +193,9 @@
       "get": {
         "summary": "Get friends",
         "description": "Retrieve operation for /v1/friends/",
+        "tags": [
+          "friends"
+        ],
         "responses": {
           "200": {
             "description": "Successful response"
@@ -358,11 +212,13 @@
         }
       }
     },
-    "/v1/friends/request/:userId": {},
     "/v1/friends/request/{userId}": {
       "post": {
         "summary": "Send friend request",
         "description": "Create operation for /v1/friends/request/:userId",
+        "tags": [
+          "friends"
+        ],
         "parameters": [
           {
             "name": "userId",
@@ -391,8 +247,11 @@
     },
     "/v1/friends/requests": {
       "get": {
-        "summary": "Get friends",
+        "summary": "Get friend requests",
         "description": "Retrieve operation for /v1/friends/requests",
+        "tags": [
+          "friends"
+        ],
         "responses": {
           "200": {
             "description": "Successful response"
@@ -413,6 +272,9 @@
       "get": {
         "summary": "Get groups",
         "description": "Retrieve operation for /v1/groups/",
+        "tags": [
+          "groups"
+        ],
         "responses": {
           "200": {
             "description": "Successful response"
@@ -431,6 +293,9 @@
       "post": {
         "summary": "Create groups",
         "description": "Create operation for /v1/groups/",
+        "tags": [
+          "groups"
+        ],
         "responses": {
           "200": {
             "description": "Successful response"
@@ -447,11 +312,13 @@
         }
       }
     },
-    "/v1/groups/:groupId": {},
     "/v1/groups/{groupId}": {
       "get": {
         "summary": "Get specific group",
         "description": "Retrieve operation for /v1/groups/:groupId",
+        "tags": [
+          "groups"
+        ],
         "parameters": [
           {
             "name": "groupId",
@@ -482,6 +349,9 @@
       "get": {
         "summary": "Get ingredients",
         "description": "Retrieve operation for /v1/ingredients/",
+        "tags": [
+          "ingredients"
+        ],
         "responses": {
           "200": {
             "description": "Successful response"
@@ -500,6 +370,9 @@
       "post": {
         "summary": "Create ingredients",
         "description": "Create operation for /v1/ingredients/",
+        "tags": [
+          "ingredients"
+        ],
         "responses": {
           "200": {
             "description": "Successful response"
@@ -516,11 +389,13 @@
         }
       }
     },
-    "/v1/ingredients/:ingredientId": {},
     "/v1/ingredients/{ingredientId}": {
       "get": {
         "summary": "Get specific ingredient",
         "description": "Retrieve operation for /v1/ingredients/:ingredientId",
+        "tags": [
+          "ingredients"
+        ],
         "parameters": [
           {
             "name": "ingredientId",
@@ -551,6 +426,9 @@
       "get": {
         "summary": "Get products",
         "description": "Retrieve operation for /v1/products/",
+        "tags": [
+          "products"
+        ],
         "responses": {
           "200": {
             "description": "Successful response"
@@ -569,6 +447,9 @@
       "post": {
         "summary": "Create products",
         "description": "Create operation for /v1/products/",
+        "tags": [
+          "products"
+        ],
         "responses": {
           "200": {
             "description": "Successful response"
@@ -585,11 +466,13 @@
         }
       }
     },
-    "/v1/products/:productId": {},
     "/v1/products/{productId}": {
       "get": {
         "summary": "Get specific product",
         "description": "Retrieve operation for /v1/products/:productId",
+        "tags": [
+          "products"
+        ],
         "parameters": [
           {
             "name": "productId",
@@ -620,6 +503,9 @@
       "get": {
         "summary": "Get preferences",
         "description": "Retrieve operation for /v1/preferences/",
+        "tags": [
+          "preferences"
+        ],
         "responses": {
           "200": {
             "description": "Successful response"
@@ -638,6 +524,9 @@
       "put": {
         "summary": "Update preferences",
         "description": "Update operation for /v1/preferences/",
+        "tags": [
+          "preferences"
+        ],
         "responses": {
           "200": {
             "description": "Successful response"
@@ -656,6 +545,9 @@
       "post": {
         "summary": "Create preferences",
         "description": "Create operation for /v1/preferences/",
+        "tags": [
+          "preferences"
+        ],
         "responses": {
           "200": {
             "description": "Successful response"
@@ -676,6 +568,9 @@
       "get": {
         "summary": "Get recipes",
         "description": "Retrieve operation for /v1/recipes/",
+        "tags": [
+          "recipes"
+        ],
         "responses": {
           "200": {
             "description": "Successful response"
@@ -694,6 +589,9 @@
       "post": {
         "summary": "Create recipes",
         "description": "Create operation for /v1/recipes/",
+        "tags": [
+          "recipes"
+        ],
         "responses": {
           "200": {
             "description": "Successful response"
@@ -710,11 +608,13 @@
         }
       }
     },
-    "/v1/recipes/:recipeId": {},
     "/v1/recipes/{recipeId}": {
       "get": {
         "summary": "Get specific recipe",
         "description": "Retrieve operation for /v1/recipes/:recipeId",
+        "tags": [
+          "recipes"
+        ],
         "parameters": [
           {
             "name": "recipeId",
@@ -724,6 +624,29 @@
               "type": "integer"
             }
           }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response"
+          },
+          "400": {
+            "description": "Bad request"
+          },
+          "404": {
+            "description": "Not found"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/food_scan/scan": {
+      "post": {
+        "summary": "Scan food image",
+        "description": "Create operation for /food_scan/scan",
+        "tags": [
+          "foodScan"
         ],
         "responses": {
           "200": {

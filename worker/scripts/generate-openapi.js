@@ -1,33 +1,57 @@
 const fs = require('fs');
 const path = require('path');
 
-// Read the worker source code
-const workerPath = path.join(__dirname, '..', 'src', 'index.ts');
-const workerContent = fs.readFileSync(workerPath, 'utf8');
+// Define routes manually since we're using split files
+const routes = [
+  // Auth routes
+  { method: 'POST', path: '/auth/login', summary: 'Create login', description: 'Create operation for /auth/login', tags: ['auth'] },
+  { method: 'POST', path: '/auth/register', summary: 'Create register', description: 'Create operation for /auth/register', tags: ['auth'] },
+  { method: 'POST', path: '/auth/logout', summary: 'Create logout', description: 'Create operation for /auth/logout', tags: ['auth'] },
+  
+  // Profiles routes
+  { method: 'GET', path: '/v1/profiles/{userId}', summary: 'Get a user profile by ID', description: 'Retrieve operation for /v1/profiles/:userId', tags: ['profiles'] },
+  { method: 'PATCH', path: '/v1/profiles/{userId}', summary: 'Update a user profile', description: 'Partially update operation for /v1/profiles/:userId', tags: ['profiles'] },
+  
+  // Meals routes
+  { method: 'GET', path: '/v1/meals/', summary: 'Get meals', description: 'Retrieve operation for /v1/meals/', tags: ['meals'] },
+  { method: 'POST', path: '/v1/meals/', summary: 'Create meals', description: 'Create operation for /v1/meals/', tags: ['meals'] },
+  
+  // Friends routes
+  { method: 'GET', path: '/v1/friends/', summary: 'Get friends', description: 'Retrieve operation for /v1/friends/', tags: ['friends'] },
+  { method: 'POST', path: '/v1/friends/request/{userId}', summary: 'Send friend request', description: 'Create operation for /v1/friends/request/:userId', tags: ['friends'] },
+  { method: 'GET', path: '/v1/friends/requests', summary: 'Get friend requests', description: 'Retrieve operation for /v1/friends/requests', tags: ['friends'] },
+  
+  // Groups routes
+  { method: 'GET', path: '/v1/groups/', summary: 'Get groups', description: 'Retrieve operation for /v1/groups/', tags: ['groups'] },
+  { method: 'POST', path: '/v1/groups/', summary: 'Create groups', description: 'Create operation for /v1/groups/', tags: ['groups'] },
+  { method: 'GET', path: '/v1/groups/{groupId}', summary: 'Get specific group', description: 'Retrieve operation for /v1/groups/:groupId', tags: ['groups'] },
+  
+  // Ingredients routes
+  { method: 'GET', path: '/v1/ingredients/', summary: 'Get ingredients', description: 'Retrieve operation for /v1/ingredients/', tags: ['ingredients'] },
+  { method: 'POST', path: '/v1/ingredients/', summary: 'Create ingredients', description: 'Create operation for /v1/ingredients/', tags: ['ingredients'] },
+  { method: 'GET', path: '/v1/ingredients/{ingredientId}', summary: 'Get specific ingredient', description: 'Retrieve operation for /v1/ingredients/:ingredientId', tags: ['ingredients'] },
+  
+  // Products routes
+  { method: 'GET', path: '/v1/products/', summary: 'Get products', description: 'Retrieve operation for /v1/products/', tags: ['products'] },
+  { method: 'POST', path: '/v1/products/', summary: 'Create products', description: 'Create operation for /v1/products/', tags: ['products'] },
+  { method: 'GET', path: '/v1/products/{productId}', summary: 'Get specific product', description: 'Retrieve operation for /v1/products/:productId', tags: ['products'] },
+  
+  // Preferences routes
+  { method: 'GET', path: '/v1/preferences/', summary: 'Get preferences', description: 'Retrieve operation for /v1/preferences/', tags: ['preferences'] },
+  { method: 'PUT', path: '/v1/preferences/', summary: 'Update preferences', description: 'Update operation for /v1/preferences/', tags: ['preferences'] },
+  { method: 'POST', path: '/v1/preferences/', summary: 'Create preferences', description: 'Create operation for /v1/preferences/', tags: ['preferences'] },
+  
+  // Recipes routes
+  { method: 'GET', path: '/v1/recipes/', summary: 'Get recipes', description: 'Retrieve operation for /v1/recipes/', tags: ['recipes'] },
+  { method: 'POST', path: '/v1/recipes/', summary: 'Create recipes', description: 'Create operation for /v1/recipes/', tags: ['recipes'] },
+  { method: 'GET', path: '/v1/recipes/{recipeId}', summary: 'Get specific recipe', description: 'Retrieve operation for /v1/recipes/:recipeId', tags: ['recipes'] },
+  
+  // Food scan routes
+  { method: 'POST', path: '/food_scan/scan', summary: 'Scan food image', description: 'Create operation for /food_scan/scan', tags: ['foodScan'] },
+];
 
-// Parse routes from the worker
-function extractRoutes(content) {
-  const routes = [];
-  const routePattern = /router\.(get|post|put|patch|delete)\(['"]([^'"]+)['"]/g;
-  let match;
-  
-  while ((match = routePattern.exec(content)) !== null) {
-    const method = match[1].toUpperCase();
-    const path = match[2];
-    
-    // Skip internal routes
-    if (path.startsWith('/food_scan/') || path === '/' || path === '/health' || path === '/hello') {
-      continue;
-    }
-    
-    routes.push({
-      method,
-      path,
-      summary: generateSummary(method, path),
-      description: generateDescription(method, path)
-    });
-  }
-  
+// No need to extract routes anymore, use predefined ones
+function extractRoutes() {
   return routes;
 }
 
@@ -98,19 +122,18 @@ function generateDescription(method, path) {
   return `${action} operation for ${path}`;
 }
 
-function generateOpenAPISpec(routes) {
+function generateOpenAPISpec(routesList) {
   const paths = {};
   
-  routes.forEach(route => {
+  routesList.forEach(route => {
     if (!paths[route.path]) {
       paths[route.path] = {};
     }
     
     // Handle path parameters
-    let openapiPath = route.path;
     const parameters = [];
     
-    const paramPattern = /:([^/]+)/g;
+    const paramPattern = /\{([^}]+)\}/g;
     let paramMatch;
     while ((paramMatch = paramPattern.exec(route.path)) !== null) {
       const paramName = paramMatch[1];
@@ -124,15 +147,10 @@ function generateOpenAPISpec(routes) {
       });
     }
     
-    openapiPath = openapiPath.replace(/:([^/]+)/g, '{$1}');
-    
-    if (!paths[openapiPath]) {
-      paths[openapiPath] = {};
-    }
-    
-    paths[openapiPath][route.method.toLowerCase()] = {
+    paths[route.path][route.method.toLowerCase()] = {
       summary: route.summary,
       description: route.description,
+      tags: route.tags,
       parameters: parameters.length > 0 ? parameters : undefined,
       responses: {
         '200': {
@@ -205,15 +223,15 @@ function generateOpenAPISpec(routes) {
 }
 
 // Generate the OpenAPI spec
-const routes = extractRoutes(workerContent);
-const spec = generateOpenAPISpec(routes);
+const routesList = extractRoutes();
+const spec = generateOpenAPISpec(routesList);
 
 // Write to file
 const outputPath = path.join(__dirname, '..', 'openapi.json');
 fs.writeFileSync(outputPath, JSON.stringify(spec, null, 2));
 
 console.log(`OpenAPI specification generated at ${outputPath}`);
-console.log(`Found ${routes.length} routes:`);
-routes.forEach(route => {
+console.log(`Found ${routesList.length} routes:`);
+routesList.forEach(route => {
   console.log(`  ${route.method} ${route.path} - ${route.summary}`);
 });

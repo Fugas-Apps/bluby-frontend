@@ -68,12 +68,14 @@ npm install
 4. Run the application locally:
 
 ```bash
+wrangler d1 execute bluby-db --file=src/db/schema.sql
 npm run dev
 ```
 
 5. Deploy to Cloudflare:
 
 ```bash
+wrangler d1 execute bluby-db --file=src/db/schema.sql --remote
 npm run deploy
 ```
 

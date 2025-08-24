@@ -1,96 +1,142 @@
--- Database schema for Cloudflare D1
-CREATE TABLE IF NOT EXISTS FoodItems (
-  id TEXT PRIMARY KEY,
-  name TEXT NOT NULL,
-  calories REAL NOT NULL,
-  protein REAL NOT NULL,
-  carbs REAL NOT NULL,
-  fat REAL NOT NULL,
-  processed TEXT CHECK(processed IN ('low', 'medium', 'high')) NOT NULL
+-- migration: 0000_cooing_speedball.sql
+-- Better Auth tables (these will be created automatically by better-auth-cloudflare)
+CREATE TABLE IF NOT EXISTS `users` (
+	`id` text PRIMARY KEY NOT NULL,
+	`name` text NOT NULL,
+	`email` text NOT NULL UNIQUE,
+	`email_verified` integer DEFAULT false NOT NULL,
+	`image` text,
+	`created_at` integer NOT NULL,
+	`updated_at` integer NOT NULL
+);
+--> statement-breakpoint
+CREATE TABLE IF NOT EXISTS `sessions` (
+	`id` text PRIMARY KEY NOT NULL,
+	`expires_at` integer NOT NULL,
+	`token` text NOT NULL UNIQUE,
+	`created_at` integer NOT NULL,
+	`updated_at` integer NOT NULL,
+	`ip_address` text,
+	`user_agent` text,
+	`user_id` text NOT NULL,
+	FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON UPDATE no action ON DELETE cascade
+);
+--> statement-breakpoint
+CREATE TABLE IF NOT EXISTS `accounts` (
+	`id` text PRIMARY KEY NOT NULL,
+	`account_id` text NOT NULL,
+	`provider_id` text NOT NULL,
+	`user_id` text NOT NULL,
+	`access_token` text,
+	`refresh_token` text,
+	`id_token` text,
+	`access_token_expires_at` integer,
+	`refresh_token_expires_at` integer,
+	`scope` text,
+	`password` text,
+	`created_at` integer NOT NULL,
+	`updated_at` integer NOT NULL,
+	FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON UPDATE no action ON DELETE cascade
+);
+--> statement-breakpoint
+CREATE TABLE IF NOT EXISTS `verifications` (
+	`id` text PRIMARY KEY NOT NULL,
+	`identifier` text NOT NULL,
+	`value` text NOT NULL,
+	`expires_at` integer NOT NULL,
+	`created_at` integer,
+	`updated_at` integer
+);
+--> statement-breakpoint
+-- Application tables
+CREATE TABLE IF NOT EXISTS `food_items` (
+	`id` text PRIMARY KEY NOT NULL,
+	`name` text NOT NULL,
+	`calories` integer NOT NULL,
+	`protein` integer NOT NULL,
+	`carbs` integer NOT NULL,
+	`fat` integer NOT NULL,
+	`processed` text NOT NULL
+);
+--> statement-breakpoint
+CREATE TABLE IF NOT EXISTS `groups` (
+	`id` text PRIMARY KEY NOT NULL,
+	`name` text NOT NULL
+);
+--> statement-breakpoint
+CREATE TABLE IF NOT EXISTS `group_members` (
+	`group_id` text NOT NULL,
+	`user_id` text NOT NULL,
+	`name` text NOT NULL,
+	`avatar_url` text,
+	FOREIGN KEY (`group_id`) REFERENCES `groups`(`id`) ON UPDATE no action ON DELETE cascade
+);
+--> statement-breakpoint
+CREATE TABLE IF NOT EXISTS `meals` (
+	`id` text PRIMARY KEY NOT NULL,
+	`type` text NOT NULL,
+	`total_calories` integer NOT NULL,
+	`total_protein` integer NOT NULL,
+	`total_carbs` integer NOT NULL,
+	`total_fat` integer NOT NULL,
+	`created_at` integer DEFAULT CURRENT_TIMESTAMP
+);
+--> statement-breakpoint
+CREATE TABLE IF NOT EXISTS `meal_items` (
+	`meal_id` text NOT NULL,
+	`food_item_id` text NOT NULL,
+	FOREIGN KEY (`meal_id`) REFERENCES `meals`(`id`) ON UPDATE no action ON DELETE cascade,
+	FOREIGN KEY (`food_item_id`) REFERENCES `food_items`(`id`) ON UPDATE no action ON DELETE cascade
+);
+--> statement-breakpoint
+CREATE TABLE IF NOT EXISTS `pantry_items` (
+	`id` text PRIMARY KEY NOT NULL,
+	`name` text NOT NULL,
+	`quantity` integer DEFAULT 1 NOT NULL,
+	`is_scanned` integer DEFAULT false,
+	`barcode` text,
+	`user_id` text NOT NULL,
+	FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON UPDATE no action ON DELETE cascade
+);
+--> statement-breakpoint
+CREATE TABLE IF NOT EXISTS `recipes` (
+	`id` text PRIMARY KEY NOT NULL,
+	`name` text NOT NULL,
+	`calories` integer NOT NULL,
+	`protein` integer NOT NULL,
+	`carbs` integer NOT NULL,
+	`fat` integer NOT NULL,
+	`type` text NOT NULL
+);
+--> statement-breakpoint
+CREATE TABLE IF NOT EXISTS `recipe_ingredients` (
+	`recipe_id` text NOT NULL,
+	`ingredient` text NOT NULL,
+	FOREIGN KEY (`recipe_id`) REFERENCES `recipes`(`id`) ON UPDATE no action ON DELETE cascade
+);
+--> statement-breakpoint
+CREATE TABLE IF NOT EXISTS `user_profiles` (
+	`user_id` text PRIMARY KEY NOT NULL,
+	`goal` text,
+	`avatar_url` text,
+	FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON UPDATE no action ON DELETE cascade
+);
+--> statement-breakpoint
+CREATE TABLE IF NOT EXISTS `user_allergies` (
+	`user_id` text NOT NULL,
+	`allergy` text NOT NULL,
+	FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON UPDATE no action ON DELETE cascade
+);
+--> statement-breakpoint
+CREATE TABLE IF NOT EXISTS `user_preferences` (
+	`user_id` text NOT NULL,
+	`preference` text NOT NULL,
+	FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON UPDATE no action ON DELETE cascade
+);
+--> statement-breakpoint
+CREATE TABLE IF NOT EXISTS `user_intolerances` (
+	`user_id` text NOT NULL,
+	`intolerance` text NOT NULL,
+	FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON UPDATE no action ON DELETE cascade
 );
 
-CREATE TABLE IF NOT EXISTS Meals (
-  id TEXT PRIMARY KEY,
-  type TEXT CHECK(type IN ('Breakfast', 'Lunch', 'Dinner', 'Snacks')) NOT NULL,
-  totalCalories REAL NOT NULL,
-  totalProtein REAL NOT NULL,
-  totalCarbs REAL NOT NULL,
-  totalFat REAL NOT NULL,
-  createdAt TEXT DEFAULT CURRENT_TIMESTAMP
-);
-
-CREATE TABLE IF NOT EXISTS MealItems (
-  mealId TEXT NOT NULL,
-  foodItemId TEXT NOT NULL,
-  FOREIGN KEY (mealId) REFERENCES Meals(id),
-  FOREIGN KEY (foodItemId) REFERENCES FoodItems(id),
-  PRIMARY KEY (mealId, foodItemId)
-);
-
-CREATE TABLE IF NOT EXISTS PantryItems (
-  id TEXT PRIMARY KEY,
-  name TEXT NOT NULL,
-  quantity INTEGER NOT NULL DEFAULT 1,
-  isScanned INTEGER NOT NULL DEFAULT 0,
-  barcode TEXT,
-  userId TEXT NOT NULL
-);
-
-CREATE TABLE IF NOT EXISTS Recipes (
-  id TEXT PRIMARY KEY,
-  name TEXT NOT NULL,
-  calories REAL NOT NULL,
-  protein REAL NOT NULL,
-  carbs REAL NOT NULL,
-  fat REAL NOT NULL,
-  type TEXT CHECK(type IN ('AI', 'DB', 'Basic')) NOT NULL
-);
-
-CREATE TABLE IF NOT EXISTS RecipeIngredients (
-  recipeId TEXT NOT NULL,
-  ingredient TEXT NOT NULL,
-  FOREIGN KEY (recipeId) REFERENCES Recipes(id),
-  PRIMARY KEY (recipeId, ingredient)
-);
-
-CREATE TABLE IF NOT EXISTS Groups (
-  id TEXT PRIMARY KEY,
-  name TEXT NOT NULL
-);
-
-CREATE TABLE IF NOT EXISTS GroupMembers (
-  groupId TEXT NOT NULL,
-  userId TEXT NOT NULL,
-  name TEXT NOT NULL,
-  avatarUrl TEXT,
-  FOREIGN KEY (groupId) REFERENCES Groups(id),
-  PRIMARY KEY (groupId, userId)
-);
-
-CREATE TABLE IF NOT EXISTS Users (
-  id TEXT PRIMARY KEY,
-  name TEXT NOT NULL,
-  goal TEXT CHECK(goal IN ('weight-loss', 'muscle-gain', 'maintenance', 'health')),
-  avatarUrl TEXT
-);
-
-CREATE TABLE IF NOT EXISTS UserAllergies (
-  userId TEXT NOT NULL,
-  allergy TEXT NOT NULL,
-  FOREIGN KEY (userId) REFERENCES Users(id),
-  PRIMARY KEY (userId, allergy)
-);
-
-CREATE TABLE IF NOT EXISTS UserPreferences (
-  userId TEXT NOT NULL,
-  preference TEXT NOT NULL,
-  FOREIGN KEY (userId) REFERENCES Users(id),
-  PRIMARY KEY (userId, preference)
-);
-
-CREATE TABLE IF NOT EXISTS UserIntolerances (
-  userId TEXT NOT NULL,
-  intolerance TEXT NOT NULL,
-  FOREIGN KEY (userId) REFERENCES Users(id),
-  PRIMARY KEY (userId, intolerance)
-);

@@ -1,72 +1,159 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, Button, Alert, StyleSheet, ActivityIndicator } from 'react-native';
-import { usePostAuthLogin, usePostAuthRegister, usePostAuthLogout } from '../../src/api/default/default';
-import { login, register, logout, isAuthenticated, getCurrentUser } from '../../src/api/mutator/custom-instance';
+
+import { authClient, auth } from 'src/lib/authClient';
 
 export default function TestAuthScreen() {
   const [email, setEmail] = useState('test@example.com');
   const [password, setPassword] = useState('password123');
   const [name, setName] = useState('Test User');
-  const [user, setUser] = useState<any>(null);
+  type User = { id: string; email: string; name?: string | null; image?: string | null } | null;
+  const [user, setUser] = useState<User>(null);
   const [authStatus, setAuthStatus] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
-  // Use the generated API hooks
-  const loginMutation = usePostAuthLogin();
-  const registerMutation = usePostAuthRegister();
-  const logoutMutation = usePostAuthLogout();
+  // Call the useSession hook at the top level of the component (Rules of Hooks)
+  // This returns the reactive session object from the auth client.
+  // Assumption: authClient.useSession exists in this runtime (created by createAuthClient).
+  const session = authClient.useSession?.();
+
+  // Type guard to detect a subscribe-able session object without using `any`
+  const hasSubscribe = (s: unknown): s is { subscribe: (cb: () => void) => (() => void) | void } => {
+    return !!s && typeof (s as { subscribe?: unknown }).subscribe === 'function';
+  };
+
+  // Check auth status on component mount
+  useEffect(() => {
+    checkAuthStatus();
+  }, []);
+
+  // Keep local state in sync when the session object changes
+  useEffect(() => {
+    // If session exposes a subscribe method (original code used this), use it to react to changes.
+    if (hasSubscribe(session)) {
+      const unsub = session.subscribe(() => {
+        try {
+          if (session?.data?.session && session?.data?.user) {
+            setAuthStatus(true);
+            setUser(session.data.user);
+          } else {
+            setAuthStatus(false);
+            setUser(null);
+          }
+        } catch (e) {
+          // ignore
+        }
+      });
+      return () => unsub && unsub();
+    }
+
+    // Fallback: if no subscribe, sync once when session reference changes
+    try {
+      if (session?.data?.session && session?.data?.user) {
+        setAuthStatus(true);
+        setUser(session.data.user);
+      } else {
+        setAuthStatus(false);
+        setUser(null);
+      }
+    } catch (e) {
+      // ignore
+    }
+  }, [session]);
 
   const handleLogin = async () => {
+    setIsLoading(true);
     try {
-      // Using custom instance for now since the generated hooks don't have proper types
-      const response = await login({ email, password });
-      setUser(response.user);
-      setAuthStatus(true);
-      Alert.alert('Success', 'Logged in successfully!');
-    } catch (error: any) {
-      Alert.alert('Error', error.message || 'Login failed');
+      console.log('🔐 Attempting login with:', { email });
+      const resp = await authClient.signIn.email({ email, password });
+      console.log('🔐 Login result:', resp);
+      if (resp.data?.user) {
+        setUser(resp.data.user);
+        setAuthStatus(true);
+        Alert.alert('Success', 'Logged in successfully!');
+      } else if (resp.error) {
+        console.log('❌ Login error:', resp.error);
+        Alert.alert('Error', resp.error.message || 'Login failed');
+      }
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
+      console.log('❌ Login exception:', message);
+      Alert.alert('Error', message || 'Login failed');
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const handleRegister = async () => {
+    setIsLoading(true);
     try {
-      // Using custom instance for now since the generated hooks don't have proper types
-      const response = await register({ email, password, name });
-      setUser(response.user);
-      setAuthStatus(true);
-      Alert.alert('Success', 'Registered successfully!');
-    } catch (error: any) {
-      Alert.alert('Error', error.message || 'Registration failed');
+      console.log('📝 Attempting register with:', { email, name });
+      const resp = await authClient.signUp.email({ email, password, name });
+      console.log('📝 Register result:', resp);
+      if (resp.data?.user) {
+        setUser(resp.data.user);
+        setAuthStatus(true);
+        Alert.alert('Success', 'Registered successfully!');
+      } else if (resp.error) {
+        console.log('❌ Register error:', resp.error);
+        Alert.alert('Error', resp.error.message || 'Registration failed');
+      }
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
+      console.log('❌ Register exception:', message);
+      Alert.alert('Error', message || 'Registration failed');
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const handleLogout = async () => {
+    setIsLoading(true);
     try {
-      await logout();
-      setUser(null);
-      setAuthStatus(false);
-      Alert.alert('Success', 'Logged out successfully!');
-    } catch (error: any) {
-      Alert.alert('Error', error.message || 'Logout failed');
+      const result = await authClient.signOut();
+      if (!result?.error) {
+        setUser(null);
+        setAuthStatus(false);
+        Alert.alert('Success', 'Logged out successfully!');
+      } else {
+        Alert.alert('Error', result.error?.message || 'Logout failed');
+      }
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
+      Alert.alert('Error', message || 'Logout failed');
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const checkAuthStatus = async () => {
-    const status = await isAuthenticated();
-    const currentUser = await getCurrentUser();
-    setAuthStatus(status);
-    setUser(currentUser);
+    try {
+  const session = await authClient.getSession();
+      if (session.data?.session && session.data?.user) {
+        setAuthStatus(true);
+        setUser(session.data.user);
+      } else {
+        setAuthStatus(false);
+        setUser(null);
+      }
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
+      console.warn('Failed to check auth status:', message);
+      setAuthStatus(false);
+      setUser(null);
+    }
   };
-
-  const isLoading = loginMutation.isPending || registerMutation.isPending || logoutMutation.isPending;
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Melody Auth Test</Text>
-      
+      <Text style={styles.title}>Bluby Auth Test</Text>
+
       <View style={styles.statusContainer}>
         <Text style={styles.status}>Authenticated: {authStatus ? 'Yes' : 'No'}</Text>
         {user && (
-          <Text style={styles.user}>User: {user.name} ({user.email})</Text>
+          <Text style={styles.user}>
+            User: {user.name} ({user.email})
+          </Text>
         )}
       </View>
 
@@ -78,7 +165,7 @@ export default function TestAuthScreen() {
         autoCapitalize="none"
         keyboardType="email-address"
       />
-      
+
       <TextInput
         style={styles.input}
         placeholder="Password"
@@ -86,7 +173,7 @@ export default function TestAuthScreen() {
         onChangeText={setPassword}
         secureTextEntry
       />
-      
+
       <TextInput
         style={styles.input}
         placeholder="Name (for registration)"
