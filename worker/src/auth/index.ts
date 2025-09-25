@@ -2,7 +2,7 @@ import { betterAuth } from "better-auth";
 import { withCloudflare } from "better-auth-cloudflare";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { drizzle } from "drizzle-orm/d1";
-import { schema } from "../db/schema";
+import { schema, userProfiles } from "../db/schema";
 
 // Use the same Env interface as middleware to avoid type conflicts
 export interface Env {
@@ -63,6 +63,33 @@ export function createAuth(env: Env, cf?: any) {
     }
 
     return betterAuth({
+        database: drizzleAdapter(db, {
+            provider: "sqlite",
+            usePlural: true,
+            debugLogs: true,
+        }),
+        emailAndPassword: {
+            enabled: true,
+        },
+        secret: 'my-secret-key-for-jwt',
+        session: {
+            storeSessionInDatabase: false,
+        },
+        user: {
+            // created: async (user: { id: string; email: string; }) => {
+            //     try {
+            //         // Create the user profile record automatically on registration
+            //         await db.insert(userProfiles).values({
+            //             userId: user.id,
+            //             goal: null,
+            //             avatarUrl: null,
+            //         }).onConflictDoNothing();
+            //         console.log(`Created profile for new user: ${user.email}`);
+            //     } catch (error) {
+            //         console.error('Error creating user profile on registration:', error);
+            //     }
+            // }
+        },
         ...withCloudflare(
             {
                 autoDetectIpAddress: true,
@@ -88,9 +115,6 @@ export function createAuth(env: Env, cf?: any) {
                 },
             },
             {
-                emailAndPassword: {
-                    enabled: true,
-                },
                 rateLimit: {
                     enabled: true,
                 },

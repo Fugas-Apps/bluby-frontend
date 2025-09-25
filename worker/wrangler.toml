@@ -9,27 +9,35 @@ binding = "AI"
 [build]
 command = "npm run build"
 
+# For local development, you can use a remote D1 database.
+# Create one with `npx wrangler d1 create bluby-db`
+# For production, you'll want to use a separate database.
 [[d1_databases]]
 binding = "DB"
 database_name = "bluby-db"
-database_id = "cf600ae4-f3fc-474f-9291-689997832ad4"
+database_id = "c70b380a-5527-4219-9b43-8f24255f5e31"
+preview_database_id = "c70b380a-5527-4219-9b43-8f24255f5e31"
 
+# R2 bucket for storing user-uploaded food images
 [[r2_buckets]]
 binding = "bluby_food_images"
 bucket_name = "bluby-food-images"
-preview_bucket_name = "bluby-food-images-preview"
+preview_bucket_name = "bluby-food-images"
 
+# R2 bucket for storing user avatars
 [[r2_buckets]]
 binding = "bluby_user_avatars"
 bucket_name = "bluby-user-avatars"
-preview_bucket_name = "bluby-user-avatars-preview"
+preview_bucket_name = "bluby-user-avatars"
 
+# KV namespace for storing user sessions
 [[kv_namespaces]]
 binding = "bluby_user_sessions"
-id = "002a1c2caba5491ca4a82d554c8b22dc"
+id = "4a8a5e5e0c8b4b1e8b0c8b4b1e8b0c8b"
+preview_id = "4a8a5e5e0c8b4b1e8b0c8b4b1e8b0c8b"
 
 [vars]
-ALLOWED_ORIGINS = "https://api.blubyai.com"
+ALLOWED_ORIGINS = "https://api.blubyai.com,http://localhost:8787,http://localhost:8081"
 # Set ALLOW_ALL_ORIGINS = "true" to enable '*' (not recommended when using cookies)
 # ALLOW_ALL_ORIGINS = "false"
 

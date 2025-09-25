@@ -35,11 +35,42 @@ export const foodItems = sqliteTable('food_items', {
     protein: integer('protein').notNull(),
     carbs: integer('carbs').notNull(),
     fat: integer('fat').notNull(),
+
+    // Micronutrients
+    vitamins: text('vitamins'), // JSON string with vitamin data
+    minerals: text('minerals'), // JSON string with mineral data
+
+    // Enhanced nutritional data
+    fiber: integer('fiber'),
+    sugar: integer('sugar'),
+    sodium: integer('sodium'),
+    potassium: integer('potassium'),
+    calcium: integer('calcium'),
+    iron: integer('iron'),
+    magnesium: integer('magnesium'),
+    zinc: integer('zinc'),
+    selenium: integer('selenium'),
+    vitaminC: integer('vitamin_c'),
+    vitaminD: integer('vitamin_d'),
+    vitaminE: integer('vitamin_e'),
+    vitaminK: integer('vitamin_k'),
+    vitaminA: integer('vitamin_a'),
+    vitaminB1: integer('vitamin_b1'), // Thiamin
+    vitaminB2: integer('vitamin_b2'), // Riboflavin
+    vitaminB3: integer('vitamin_b3'), // Niacin
+    vitaminB6: integer('vitamin_b6'),
+    vitaminB12: integer('vitamin_b12'),
+    folate: integer('folate'),
+
     processed: text('processed').notNull(),
+
+    // Allow users to add custom nutrients
+    customNutrients: text('custom_nutrients'), // JSON string for user-defined nutrients
 });
 
 export const meals = sqliteTable('meals', {
     id: text('id').primaryKey(),
+    userId: text('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
     type: text('type').notNull(),
     totalCalories: integer('total_calories').notNull(),
     totalProtein: integer('total_protein').notNull(),

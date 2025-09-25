@@ -15,7 +15,7 @@
     "drizzle:run": "node scripts/drizzle-run.js",
     "drizzle:run:prod": "node scripts/drizzle-run.js --remote",
     "drizzle:bootstrap-remote": "node scripts/drizzle-run.js --remote --bootstrap-remote",
-    "generate": "npm run generate:client npm run drizzle:generate",
+    "generate": "npm run generate:client && npm run drizzle:migrate",
     "full-local": "npm run generate && npm run build && wrangler dev"
   },
   "dependencies": {

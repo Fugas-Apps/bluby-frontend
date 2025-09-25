@@ -1,0 +1,24 @@
+ALTER TABLE `food_items` ADD `vitamins` text;--> statement-breakpoint
+ALTER TABLE `food_items` ADD `minerals` text;--> statement-breakpoint
+ALTER TABLE `food_items` ADD `fiber` integer;--> statement-breakpoint
+ALTER TABLE `food_items` ADD `sugar` integer;--> statement-breakpoint
+ALTER TABLE `food_items` ADD `sodium` integer;--> statement-breakpoint
+ALTER TABLE `food_items` ADD `potassium` integer;--> statement-breakpoint
+ALTER TABLE `food_items` ADD `calcium` integer;--> statement-breakpoint
+ALTER TABLE `food_items` ADD `iron` integer;--> statement-breakpoint
+ALTER TABLE `food_items` ADD `magnesium` integer;--> statement-breakpoint
+ALTER TABLE `food_items` ADD `zinc` integer;--> statement-breakpoint
+ALTER TABLE `food_items` ADD `selenium` integer;--> statement-breakpoint
+ALTER TABLE `food_items` ADD `vitamin_c` integer;--> statement-breakpoint
+ALTER TABLE `food_items` ADD `vitamin_d` integer;--> statement-breakpoint
+ALTER TABLE `food_items` ADD `vitamin_e` integer;--> statement-breakpoint
+ALTER TABLE `food_items` ADD `vitamin_k` integer;--> statement-breakpoint
+ALTER TABLE `food_items` ADD `vitamin_a` integer;--> statement-breakpoint
+ALTER TABLE `food_items` ADD `vitamin_b1` integer;--> statement-breakpoint
+ALTER TABLE `food_items` ADD `vitamin_b2` integer;--> statement-breakpoint
+ALTER TABLE `food_items` ADD `vitamin_b3` integer;--> statement-breakpoint
+ALTER TABLE `food_items` ADD `vitamin_b6` integer;--> statement-breakpoint
+ALTER TABLE `food_items` ADD `vitamin_b12` integer;--> statement-breakpoint
+ALTER TABLE `food_items` ADD `folate` integer;--> statement-breakpoint
+ALTER TABLE `food_items` ADD `custom_nutrients` text;--> statement-breakpoint
+ALTER TABLE `meals` ADD `user_id` text NOT NULL REFERENCES users(id);

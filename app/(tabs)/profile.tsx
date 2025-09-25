@@ -1,15 +1,16 @@
 import * as React from 'react';
-import { View, Text, TouchableOpacity, Alert, ScrollView } from 'react-native';
+import { View, Text, TouchableOpacity, Alert, ScrollView, TextInput } from 'react-native';
 import { Screen } from '../../src/components/common/Screen';
 import { Card } from '../../src/components/ui/Card';
 import { Button } from '../../src/components/ui/Button';
-import { useGetV1ProfilesUserId } from '../../src/api/profiles/profiles';
+import { useAuth } from '../../src/contexts/AuthProvider';
+import { useProfileStore } from '../../src/stores/useProfileStore';
 import { Ionicons } from '@expo/vector-icons';
 
-const ProfileSection = ({ 
-  title, 
-  children 
-}: { 
+const ProfileSection = ({
+  title,
+  children
+}: {
   title: string;
   children: React.ReactNode;
 }) => {
@@ -21,10 +22,10 @@ const ProfileSection = ({
   );
 };
 
-const PreferenceTag = ({ 
-  label, 
-  onRemove 
-}: { 
+const PreferenceTag = ({
+  label,
+  onRemove
+}: {
   label: string;
   onRemove?: () => void;
 }) => {
@@ -40,10 +41,10 @@ const PreferenceTag = ({
   );
 };
 
-const WarningTag = ({ 
-  label, 
-  onRemove 
-}: { 
+const WarningTag = ({
+  label,
+  onRemove
+}: {
   label: string;
   onRemove?: () => void;
 }) => {
@@ -59,20 +60,20 @@ const WarningTag = ({
   );
 };
 
-const SettingsItem = ({ 
-  icon, 
-  label, 
-  value, 
-  onPress 
-}: { 
+const SettingsItem = ({
+  icon,
+  label,
+  value,
+  onPress
+}: {
   icon: any;
   label: string;
   value?: string;
   onPress?: () => void;
 }) => {
   return (
-    <TouchableOpacity 
-      className="flex-row items-center py-3 border-b border-gray-100" 
+    <TouchableOpacity
+      className="flex-row items-center py-3 border-b border-gray-100"
       onPress={onPress}
       disabled={!onPress}
     >
@@ -88,42 +89,133 @@ const SettingsItem = ({
   );
 };
 
-export default function ProfileScreen() {
-  // For now, we'll use a mock user ID. In a real app, this would come from authentication.
-  const userId = 1;
-  // Explicit local type for the profile API response to satisfy TypeScript
-  type ProfileResponse = {
-    status?: number;
-    body?: {
-      user_id?: number;
-      username?: string;
-      private?: boolean;
-      allow_contact_search?: boolean;
-    } | null;
+const AddItemModal = ({
+  visible,
+  onClose,
+  onAdd,
+  placeholder,
+  title
+}: {
+  visible: boolean;
+  onClose: () => void;
+  onAdd: (item: string) => void;
+  placeholder: string;
+  title: string;
+}) => {
+  const [inputValue, setInputValue] = React.useState('');
+
+  const handleAdd = () => {
+    if (inputValue.trim()) {
+      onAdd(inputValue.trim());
+      setInputValue('');
+      onClose();
+    }
   };
 
-  const { data: profileData, isLoading, error } = useGetV1ProfilesUserId<ProfileResponse, unknown>(userId);
+  if (!visible) return null;
+
+  return (
+    <View className="absolute inset-0 bg-black/50 items-center justify-center z-50">
+      <View className="bg-white rounded-lg p-6 w-80">
+        <Text className="text-lg font-bold mb-4">{title}</Text>
+        <TextInput
+          className="border border-gray-300 rounded px-3 py-2 mb-4"
+          placeholder={placeholder}
+          value={inputValue}
+          onChangeText={setInputValue}
+        />
+        <View className="flex-row justify-end space-x-2">
+          <TouchableOpacity
+            onPress={() => {
+              setInputValue('');
+              onClose();
+            }}
+            className="px-4 py-2 bg-gray-200 rounded"
+          >
+            <Text className="text-gray-700">Cancel</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={handleAdd}
+            className="px-4 py-2 bg-blue-500 rounded"
+          >
+            <Text className="text-white">Add</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    </View>
+  );
+};
+
+export default function ProfileScreen() {
+  const { user, signOut, isAuthenticated } = useAuth();
+  const {
+    profile,
+    isLoading,
+    error,
+    loadProfile,
+    addPreference,
+    removePreference,
+    addAllergy,
+    removeAllergy,
+    addIntolerance,
+    removeIntolerance
+  } = useProfileStore();
+
+  // Modals state
+  const [preferenceModalVisible, setPreferenceModalVisible] = React.useState(false);
+  const [allergyModalVisible, setAllergyModalVisible] = React.useState(false);
+  const [intoleranceModalVisible, setIntoleranceModalVisible] = React.useState(false);
+
+  // Load profile when component mounts or user changes
+  React.useEffect(() => {
+    if (user?.id) {
+      loadProfile(user.id.toString());
+    }
+  }, [user?.id, loadProfile]);
+
+  // If not authenticated, show login prompt
+  if (!isAuthenticated || !user) {
+    return (
+      <Screen title="Profile" scrollable>
+        <View className="mt-4 items-center justify-center flex-1">
+          <Text className="text-gray-600 text-center">
+            Please sign in to view your profile
+          </Text>
+        </View>
+      </Screen>
+    );
+  }
+
+  const handleSignOut = () => {
+    Alert.alert(
+      'Sign Out',
+      'Are you sure you want to sign out?',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Sign Out',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              await signOut();
+              Alert.alert('Success', 'You have been signed out');
+            } catch (error) {
+              Alert.alert('Error', 'Failed to sign out');
+            }
+          }
+        }
+      ]
+    );
+  };
 
   const handleEditProfile = () => {
-    Alert.alert('Edit Profile', 'Feature not implemented in this UI boilerplate');
+    Alert.alert('Edit Profile', 'Profile editing feature coming soon!');
   };
-  
-  const handleEditDietaryPreferences = () => {
-    Alert.alert('Edit Dietary Preferences', 'Feature not implemented in this UI boilerplate');
-  };
-  
-  const handleEditAllergies = () => {
-    Alert.alert('Edit Allergies', 'Feature not implemented in this UI boilerplate');
-  };
-  
-  const handleEditIntolerances = () => {
-    Alert.alert('Edit Intolerances', 'Feature not implemented in this UI boilerplate');
-  };
-  
+
   const handleSettingsItemPress = (setting: string) => {
-    Alert.alert(setting, 'Feature not implemented in this UI boilerplate');
+    Alert.alert(setting, 'Feature not implemented yet');
   };
-  
+
   const renderGoalIcon = (goal: string) => {
     switch (goal) {
       case 'weight-loss':
@@ -138,7 +230,7 @@ export default function ProfileScreen() {
         return 'body-outline';
     }
   };
-  
+
   const formatGoalText = (goal: string) => {
     return goal.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
   };
@@ -153,98 +245,101 @@ export default function ProfileScreen() {
     );
   }
 
-  if (error) {
-    return (
-      <Screen title="Profile" scrollable>
-        <View className="mt-4 items-center justify-center flex-1">
-          <Text className="text-red-600">Error loading profile</Text>
-          <Text className="text-gray-600 text-sm mt-2">{JSON.stringify(error)}</Text>
-        </View>
-      </Screen>
-    );
-  }
-
-  // Mock data for now since the API doesn't return all the fields yet
-  const mockUserProfile = {
-    name: profileData?.body?.username || 'User',
-    goal: 'health',
-    dietaryPreferences: ['High Protein', 'Low Carb', 'Mediterranean'],
-    allergies: ['Peanuts', 'Shellfish'],
-    intolerances: ['Lactose', 'Gluten']
-  };
-
   return (
     <Screen title="Profile" scrollable>
       <View className="mt-4">
+        {error && (
+          <View className="bg-red-100 p-3 rounded-lg mb-4">
+            <Text className="text-red-700 text-sm">{error}</Text>
+          </View>
+        )}
+
         <Card className="mb-6 items-center">
           <View className="w-20 h-20 rounded-full bg-blue-500 items-center justify-center mb-2">
             <Text className="text-white text-3xl font-bold">
-              {mockUserProfile.name.charAt(0)}
+              {user.name?.charAt(0) || user.email?.charAt(0) || 'U'}
             </Text>
           </View>
-          <Text className="text-xl font-bold text-gray-800 mb-1">{mockUserProfile.name}</Text>
-          
-          <View className="flex-row items-center mb-4">
-            <Ionicons name={renderGoalIcon(mockUserProfile.goal)} size={16} color="#3b82f6" />
-            <Text className="text-blue-500 ml-1 font-medium">
-              Goal: {formatGoalText(mockUserProfile.goal)}
-            </Text>
-          </View>
-          
-          <Button 
-            label="Edit Profile" 
-            variant="outline" 
+          <Text className="text-xl font-bold text-gray-800 mb-1">
+            {user.name || 'User'}
+          </Text>
+          <Text className="text-gray-500 text-sm mb-4">{user.email}</Text>
+
+          {profile?.nutritionGoals && (
+            <View className="flex-row items-center mb-4">
+              <Ionicons name="fitness-outline" size={16} color="#3b82f6" />
+              <Text className="text-blue-500 ml-1 font-medium">
+                Daily Goal: {profile.nutritionGoals.dailyCalories} kcal
+              </Text>
+            </View>
+          )}
+
+          <Button
+            label="Edit Profile"
+            variant="outline"
             size="sm"
             onPress={handleEditProfile}
           />
         </Card>
-        
+
         <ProfileSection title="Dietary Preferences">
           <View className="flex-row flex-wrap mb-2">
-            {mockUserProfile.dietaryPreferences.map((pref: string, index: number) => (
-              <PreferenceTag key={index} label={pref} />
+            {(profile?.preferences || []).map((pref: string, index: number) => (
+              <PreferenceTag
+                key={index}
+                label={pref}
+                onRemove={() => removePreference(pref)}
+              />
             ))}
           </View>
-          
-          <TouchableOpacity 
-            className="flex-row items-center justify-center pt-2 border-t border-gray-100" 
-            onPress={handleEditDietaryPreferences}
+
+          <TouchableOpacity
+            className="flex-row items-center justify-center pt-2 border-t border-gray-100"
+            onPress={() => setPreferenceModalVisible(true)}
           >
             <Ionicons name="add-circle-outline" size={18} color="#3b82f6" />
             <Text className="text-blue-500 ml-1 font-medium">Add Preference</Text>
           </TouchableOpacity>
         </ProfileSection>
-        
+
         <ProfileSection title="Allergies & Intolerances">
           <Text className="text-gray-600 mb-2">Allergies</Text>
           <View className="flex-row flex-wrap mb-4">
-            {mockUserProfile.allergies.map((allergy: string, index: number) => (
-              <WarningTag key={index} label={allergy} />
+            {(profile?.allergies || []).map((allergy: string, index: number) => (
+              <WarningTag
+                key={index}
+                label={allergy}
+                onRemove={() => removeAllergy(allergy)}
+              />
             ))}
-            <TouchableOpacity 
-              className="border border-dashed border-gray-300 rounded-full px-3 py-1 mr-2 mb-2 flex-row items-center" 
-              onPress={handleEditAllergies}
+            <TouchableOpacity
+              className="border border-dashed border-gray-300 rounded-full px-3 py-1 mr-2 mb-2 flex-row items-center"
+              onPress={() => setAllergyModalVisible(true)}
             >
               <Ionicons name="add" size={16} color="#6b7280" />
               <Text className="text-gray-600 text-sm ml-1">Add</Text>
             </TouchableOpacity>
           </View>
-          
+
           <Text className="text-gray-600 mb-2">Intolerances</Text>
           <View className="flex-row flex-wrap">
-            {mockUserProfile.intolerances.map((intolerance: string, index: number) => (
-              <WarningTag key={index} label={intolerance} />
+            {(profile?.intolerances || []).map((intolerance: string, index: number) => (
+              <WarningTag
+                key={index}
+                label={intolerance}
+                onRemove={() => removeIntolerance(intolerance)}
+              />
             ))}
-            <TouchableOpacity 
-              className="border border-dashed border-gray-300 rounded-full px-3 py-1 mr-2 mb-2 flex-row items-center" 
-              onPress={handleEditIntolerances}
+            <TouchableOpacity
+              className="border border-dashed border-gray-300 rounded-full px-3 py-1 mr-2 mb-2 flex-row items-center"
+              onPress={() => setIntoleranceModalVisible(true)}
             >
               <Ionicons name="add" size={16} color="#6b7280" />
               <Text className="text-gray-600 text-sm ml-1">Add</Text>
             </TouchableOpacity>
           </View>
         </ProfileSection>
-        
+
         <ProfileSection title="Settings">
           <SettingsItem
             icon="notifications-outline"
@@ -261,7 +356,7 @@ export default function ProfileScreen() {
           <SettingsItem
             icon="cloud-upload-outline"
             label="Backup & Sync"
-            value="Last backup: Today, 10:30 AM"
+            value="Last backup: Today"
             onPress={() => handleSettingsItemPress('Backup & Sync')}
           />
           <SettingsItem
@@ -281,15 +376,40 @@ export default function ProfileScreen() {
             onPress={() => handleSettingsItemPress('About')}
           />
         </ProfileSection>
-        
-        <TouchableOpacity 
-          className="flex-row items-center justify-center mb-6" 
-          onPress={() => Alert.alert('Sign Out', 'Feature not implemented in this UI boilerplate')}
+
+        <TouchableOpacity
+          className="flex-row items-center justify-center mb-6 mt-4"
+          onPress={handleSignOut}
         >
           <Ionicons name="log-out-outline" size={18} color="#ef4444" />
           <Text className="text-red-500 ml-1 font-medium">Sign Out</Text>
         </TouchableOpacity>
       </View>
+
+      {/* Modals for adding items */}
+      <AddItemModal
+        visible={preferenceModalVisible}
+        onClose={() => setPreferenceModalVisible(false)}
+        onAdd={(preference) => addPreference(preference)}
+        placeholder="e.g., Vegan, Keto, Mediterranean..."
+        title="Add Dietary Preference"
+      />
+
+      <AddItemModal
+        visible={allergyModalVisible}
+        onClose={() => setAllergyModalVisible(false)}
+        onAdd={(allergy) => addAllergy(allergy)}
+        placeholder="e.g., Peanuts, Shellfish, Dairy..."
+        title="Add Allergy"
+      />
+
+      <AddItemModal
+        visible={intoleranceModalVisible}
+        onClose={() => setIntoleranceModalVisible(false)}
+        onAdd={(intolerance) => addIntolerance(intolerance)}
+        placeholder="e.g., Lactose, Gluten, Histamine..."
+        title="Add Intolerance"
+      />
     </Screen>
   );
 }

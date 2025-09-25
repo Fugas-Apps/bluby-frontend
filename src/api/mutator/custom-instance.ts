@@ -1,6 +1,7 @@
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { API_URL } from '../config';
+import { authClient } from '../../lib/authClient';
 
 const AXIOS_INSTANCE = axios.create({
   baseURL: API_URL,
@@ -9,19 +10,20 @@ const AXIOS_INSTANCE = axios.create({
   },
 });
 
-// Add a request interceptor to attach the JWT token from AsyncStorage
+// Add a request interceptor to attach the JWT token from better-auth session
 AXIOS_INSTANCE.interceptors.request.use(
   async (config: any) => {
     try {
-      // Get the JWT token from AsyncStorage
-      const token = await AsyncStorage.getItem('melody_auth_token');
+      // Get the session from the auth client, which is the reliable way
+      const session = await authClient.getSession();
+      const token = session.data?.session?.token;
       
       // If the token exists, add it to the Authorization header
       if (token && config.headers) {
         config.headers.Authorization = `Bearer ${token}`;
       }
     } catch (error) {
-      console.warn('Failed to get auth token from storage:', error);
+      console.warn('Failed to get auth token from better-auth session:', error);
     }
     
     return config;
@@ -37,7 +39,7 @@ export const customInstance = <T>(config: any): Promise<T> => {
   });
 };
 
-// Melody Auth functions
+// Melody Auth functions (DEPRECATED - Should be removed once fully migrated)
 export interface LoginCredentials {
   email: string;
   password: string;
@@ -134,8 +136,8 @@ export const getCurrentUser = async (): Promise<any> => {
 // Check if user is authenticated
 export const isAuthenticated = async (): Promise<boolean> => {
   try {
-    const token = await AsyncStorage.getItem('melody_auth_token');
-    return !!token;
+    const session = await authClient.getSession();
+    return !!session.data?.session;
   } catch (error) {
     console.warn('Failed to check auth status:', error);
     return false;
