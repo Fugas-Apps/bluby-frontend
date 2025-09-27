@@ -4,12 +4,8 @@
     "appVersionSource": "remote"
   },
   "build": {
-    "env": {
-      "EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID": "739625151203-6gnt5rcuuv2gdph2k4ahtoh5n1t6is16.apps.googleusercontent.com",
-      "EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID": "739625151203-98po48qkgtnavp1c0h7v6skljvpnrsm8.apps.googleusercontent.com",
-      "EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID": "739625151203-fjp16p6ienal3bb1q8bva9oqdavvsbmn.apps.googleusercontent.com"
-    },
     "development": {
+      "extends": "preview",
       "developmentClient": true,
       "distribution": "internal",
       "android": {
@@ -17,18 +13,19 @@
       }
     },
     "preview": {
+      "extends": "production",
       "distribution": "internal",
       "android": {
         "buildType": "apk"
-      },
-      "env": {
-        "API_URL": "api.blubyai.com"
       }
     },
-    "notreadyproduction": {
+    "production": {
       "autoIncrement": true,
       "env": {
-        "API_URL": "api.blubyai.com"
+        "API_URL": "api.blubyai.com",
+        "EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID": "739625151203-6gnt5rcuuv2gdph2k4ahtoh5n1t6is16.apps.googleusercontent.com",
+        "EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID": "739625151203-98po48qkgtnavp1c0h7v6skljvpnrsm8.apps.googleusercontent.com",
+        "EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID": "739625151203-fjp16p6ienal3bb1q8bva9oqdavvsbmn.apps.googleusercontent.com"
       }
     }
   },
