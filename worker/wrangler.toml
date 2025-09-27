@@ -40,6 +40,7 @@ preview_id = "4a8a5e5e0c8b4b1e8b0c8b4b1e8b0c8b"
 ALLOWED_ORIGINS = "https://api.blubyai.com,http://localhost:8787,http://localhost:8081"
 # Set ALLOW_ALL_ORIGINS = "true" to enable '*' (not recommended when using cookies)
 # ALLOW_ALL_ORIGINS = "false"
+GOOGLE_CLIENT_ID = "739625151203-6gnt5rcuuv2gdph2k4ahtoh5n1t6is16.apps.googleusercontent.com"
 
 [observability.logs]
 enabled = true

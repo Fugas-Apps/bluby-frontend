@@ -1,9 +1,9 @@
 {
   "expo": {
-    "name": "blubyai",
+    "name": "Bluby - Your Food Companion",
     "slug": "blubyai",
     "version": "0.1.0",
-    "scheme": "com.blubyai.android",
+    "scheme": "bluby",
     "web": {
       "favicon": "./assets/favicon.png"
     },
@@ -26,12 +26,10 @@
       "**/*"
     ],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.blubyai.ios"
     },
     "android": {
-      "minSdkVersion": 21,
-      "compileSdkVersion": 35,
-      "targetSdkVersion": 35,
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"

@@ -15,6 +15,9 @@ export interface Env {
     // Optional runtime overrides
     ALLOWED_ORIGINS?: string;
     ALLOW_ALL_ORIGINS?: string;
+    // Google OAuth credentials
+    GOOGLE_CLIENT_ID?: string;
+    GOOGLE_CLIENT_SECRET?: string;
 }
 
 // For CLI schema generation - use development-friendly config without Cloudflare context
@@ -26,6 +29,12 @@ export const auth = betterAuth({
     }),
     emailAndPassword: {
         enabled: true,
+    },
+    socialProviders: {
+        google: {
+            clientId: "placeholder-client-id",
+            clientSecret: "placeholder-client-secret",
+        },
     },
     rateLimit: {
         enabled: true,
@@ -70,6 +79,12 @@ export function createAuth(env: Env, cf?: any) {
         }),
         emailAndPassword: {
             enabled: true,
+        },
+        socialProviders: {
+            google: {
+                clientId: env.GOOGLE_CLIENT_ID || "placeholder-client-id",
+                clientSecret: env.GOOGLE_CLIENT_SECRET || "placeholder-client-secret",
+            },
         },
         secret: 'my-secret-key-for-jwt',
         session: {

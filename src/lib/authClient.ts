@@ -27,6 +27,7 @@ export const auth = {
   getSession: () => authClient.getSession(),
   signIn: {
     email: (data: { email: string; password: string }) => authClient.signIn.email(data),
+    social: (data: { provider: string; callbackURL?: string }) => authClient.signIn.social(data),
   },
   signUp: {
     email: (data: { email: string; password: string; name: string }) =>

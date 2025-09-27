@@ -1,8 +1,9 @@
 import React, { createContext, useContext, useEffect, ReactNode } from 'react';
 import { useAuthStore, AuthState } from '../stores/useAuthStore';
+import { useGoogleSignIn } from '../hooks/useGoogleSignIn';
 
 interface AuthContextType extends Omit<AuthState, 'initializeAuth'> {
-  // Remove initializeAuth as it's internal to the provider
+  signInWithGoogle: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -13,6 +14,9 @@ interface AuthProviderProps {
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const authStore = useAuthStore();
+  const { signInWithGoogle } = useGoogleSignIn((user) => {
+    authStore.checkAuth(); // Or set directly, but checkAuth is fine
+  });
 
   useEffect(() => {
     // Initialize auth state when the provider mounts
@@ -29,6 +33,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     signOut: authStore.signOut,
     checkAuth: authStore.checkAuth,
     clearError: authStore.clearError,
+    signInWithGoogle,
   };
 
   return (

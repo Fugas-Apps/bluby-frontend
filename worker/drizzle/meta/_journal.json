@@ -15,6 +15,13 @@
       "when": 1758729402398,
       "tag": "0001_military_machine_man",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1758905802551,
+      "tag": "0002_natural_king_cobra",
+      "breakpoints": true
     }
   ]
 }

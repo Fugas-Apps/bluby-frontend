@@ -17,7 +17,8 @@ export default function TestAuthScreen() {
     signUp,
     signOut,
     checkAuth,
-    clearError
+    clearError,
+    signInWithGoogle,
   } = useAuth();
 
   const handleLogin = async () => {
@@ -55,6 +56,16 @@ export default function TestAuthScreen() {
       await checkAuth();
     } catch (error) {
       console.warn('Auth check failed:', error);
+    }
+  };
+
+  const handleGoogleLogin = async () => {
+    try {
+      await signInWithGoogle();
+      Alert.alert('Success', 'Google login completed!');
+    } catch (error) {
+      // Error already handled by the auth store and displayed in UI
+      Alert.alert('Error', 'Google login failed');
     }
   };
 
@@ -108,6 +119,7 @@ export default function TestAuthScreen() {
           <>
             <Button title="Login" onPress={handleLogin} />
             <Button title="Register" onPress={handleRegister} />
+            <Button title="Login with Google" onPress={handleGoogleLogin} />
             <Button title="Logout" onPress={handleLogout} />
             <Button title="Check Auth Status" onPress={handleCheckAuth} />
           </>
