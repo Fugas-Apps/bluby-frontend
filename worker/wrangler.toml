@@ -15,8 +15,8 @@ command = "npm run build"
 [[d1_databases]]
 binding = "DB"
 database_name = "bluby-db"
-database_id = "c70b380a-5527-4219-9b43-8f24255f5e31"
-preview_database_id = "c70b380a-5527-4219-9b43-8f24255f5e31"
+database_id = "cf600ae4-f3fc-474f-9291-689997832ad4"
+# preview_database_id = "c70b380a-5527-4219-9b43-8f24255f5e31"
 
 # R2 bucket for storing user-uploaded food images
 [[r2_buckets]]
