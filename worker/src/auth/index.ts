@@ -18,6 +18,8 @@ export interface Env {
     // Google OAuth credentials
     GOOGLE_CLIENT_ID?: string;
     GOOGLE_CLIENT_SECRET?: string;
+    // Base URL for OAuth callbacks
+    BASE_URL?: string;
 }
 
 // For CLI schema generation - use development-friendly config without Cloudflare context
@@ -49,6 +51,13 @@ export function createAuth(env: Env, cf?: any) {
         logger: true 
     });
     
+    // Determine base URL for OAuth callbacks
+    // In production: use your deployed URL
+    // In development: use localhost
+    const baseUrl = env.BASE_URL || 'http://localhost:8787';
+    
+    console.log('🔐 Auth base URL:', baseUrl);
+    
     // Always use better-auth-cloudflare for both local and production
     // Build allowed origins list from env or fallback to current local defaults
     const localDefaults = [
@@ -77,6 +86,8 @@ export function createAuth(env: Env, cf?: any) {
             usePlural: true,
             debugLogs: true,
         }),
+        // Set base URL for OAuth callbacks
+        baseURL: baseUrl,
         emailAndPassword: {
             enabled: true,
         },
@@ -84,6 +95,7 @@ export function createAuth(env: Env, cf?: any) {
             google: {
                 clientId: env.GOOGLE_CLIENT_ID || "placeholder-client-id",
                 clientSecret: env.GOOGLE_CLIENT_SECRET || "placeholder-client-secret",
+                // Better Auth will automatically use: {baseURL}/api/auth/callback/google
             },
         },
         secret: 'my-secret-key-for-jwt',
