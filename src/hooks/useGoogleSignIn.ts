@@ -46,7 +46,7 @@ export const useGoogleSignIn = (onSuccess?: (user: any) => void) => {
       // Better Auth should have set a session cookie
       // Now we need to verify the session with our backend
       try {
-        const response = await fetch(`${apiUrl}/api/auth/session`, {
+        const response = await fetch(`${apiUrl}/api/auth/get-session`, {
           method: 'GET',
           credentials: 'include', // Include cookies
           headers: {
@@ -75,22 +75,37 @@ export const useGoogleSignIn = (onSuccess?: (user: any) => void) => {
   const signInWithGoogle = async () => {
     try {
       setIsLoading(true);
-      
-      // Build the OAuth URL with redirect back to the app
-      // Better Auth expects: /api/auth/sign-in/social?provider=google&callbackURL=<your-app-scheme>
-      const callbackURL = encodeURIComponent(redirectUri);
-      const authUrl = `${apiUrl}/api/auth/sign-in/social?provider=google&callbackURL=${callbackURL}`;
-      
+
+      // Request the OAuth URL from Better Auth
+      // Better Auth expects a POST request with JSON body
+      const response = await fetch(`${apiUrl}/api/auth/sign-in/social`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          provider: 'google',
+          callbackURL: redirectUri,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to get OAuth URL: ${response.status}`);
+      }
+
+      const data = await response.json();
+      const authUrl = data.url;
+
       console.log('🔐 Opening OAuth URL:', authUrl);
-      
+
       // Open the browser for OAuth
       const result = await WebBrowser.openAuthSessionAsync(
         authUrl,
         redirectUri
       );
-      
+
       console.log('🔐 Browser result:', result);
-      
+
       if (result.type === 'success' && result.url) {
         // Handle the callback URL
         await handleDeepLink({ url: result.url });

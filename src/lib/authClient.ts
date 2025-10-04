@@ -2,15 +2,15 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createAuthClient } from "better-auth/react";
 import { cloudflareClient } from "better-auth-cloudflare/client";
 
-// Use localhost for React Native development
+// Use environment variable or fallback
 const getBaseURL = () => {
   if (__DEV__) {
-    // For React Native development, use localhost
-    const baseURL = 'http://localhost:8787';
+    // For React Native development, use environment variable or localhost
+    const baseURL = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:8787';
     console.log('📱 Auth Client - Using development baseURL:', baseURL);
     return baseURL;
   }
-  const baseURL = process.env.API_URL || 'https://api.blubyai.com';
+  const baseURL = process.env.EXPO_PUBLIC_API_URL || 'https://api.blubyai.com';
   console.log('📱 Auth Client - Using production baseURL:', baseURL);
   return baseURL;
 };

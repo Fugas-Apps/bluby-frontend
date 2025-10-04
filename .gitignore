@@ -27,3 +27,4 @@ android
 # Temporary files by wrangler et al.
 *tmp*
 .drizzle_applied.json
+worker/.dev.vars

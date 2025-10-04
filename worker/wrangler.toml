@@ -37,7 +37,7 @@ id = "002a1c2caba5491ca4a82d554c8b22dc"
 preview_id = "002a1c2caba5491ca4a82d554c8b22dc"
 
 [vars]
-ALLOWED_ORIGINS = "https://api.blubyai.com,http://localhost:8787,http://localhost:8081"
+ALLOWED_ORIGINS = "https://api.blubyai.com,http://localhost:8787,http://localhost:8081,http://192.168.1.141:8787,http://192.168.1.141:8081"
 # Set ALLOW_ALL_ORIGINS = "true" to enable '*' (not recommended when using cookies)
 # ALLOW_ALL_ORIGINS = "false"
 GOOGLE_CLIENT_ID = "739625151203-6gnt5rcuuv2gdph2k4ahtoh5n1t6is16.apps.googleusercontent.com"

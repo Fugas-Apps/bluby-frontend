@@ -22,6 +22,13 @@
       "when": 1758905802551,
       "tag": "0002_natural_king_cobra",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "6",
+      "when": 1759610132289,
+      "tag": "0003_goofy_karnak",
+      "breakpoints": true
     }
   ]
 }
