@@ -36,30 +36,42 @@ export const useGoogleSignIn = (onSuccess?: (user: any) => void) => {
 
   const handleDeepLink = async ({ url }: { url: string }) => {
     console.log('📱 Received deep link:', url);
-    
+
     // Parse the URL to check if it's an auth callback
     const { hostname, path, queryParams } = Linking.parse(url);
-    
+
     if (path === 'auth/callback') {
       console.log('✅ Auth callback received');
-      
-      // Better Auth should have set a session cookie
-      // Now we need to verify the session with our backend
+
+      // Extract the session token from the URL
+      const sessionToken = queryParams?.session_token as string | undefined;
+
+      if (!sessionToken) {
+        console.error('❌ No session token in callback URL');
+        setIsLoading(false);
+        return;
+      }
+
+      console.log('🔑 Session token received:', sessionToken.substring(0, 20) + '...');
+
+      // Verify the session with our backend using the token
       try {
         const response = await fetch(`${apiUrl}/api/auth/get-session`, {
           method: 'GET',
-          credentials: 'include', // Include cookies
           headers: {
             'Content-Type': 'application/json',
+            'Cookie': `better-auth.session_token=${sessionToken}`,
           },
         });
 
         if (response.ok) {
           const data = await response.json();
           console.log('✅ Session verified:', data);
-          
-          if (data.user && onSuccess) {
+
+          if (data?.user && onSuccess) {
             onSuccess(data.user);
+          } else {
+            console.error('❌ No user in session data:', data);
           }
         } else {
           console.error('❌ Session verification failed:', response.status);
