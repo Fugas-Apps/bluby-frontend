@@ -42,7 +42,7 @@ ALLOWED_ORIGINS = "https://api.blubyai.com,http://localhost:8787,http://localhos
 # ALLOW_ALL_ORIGINS = "false"
 GOOGLE_CLIENT_ID = "739625151203-6gnt5rcuuv2gdph2k4ahtoh5n1t6is16.apps.googleusercontent.com"
 # Base URL for OAuth callbacks. Manually set in production
-BASE_URL = "http://localhost:8787"
+BASE_URL = "https://api.blubyai.com"
 
 [observability.logs]
 enabled = true

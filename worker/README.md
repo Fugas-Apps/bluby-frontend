@@ -57,49 +57,62 @@ worker/
 npm install
 ```
 
-2. Configure environment in `wrangler.toml`:
+2. Create development environment variables:
+
+```bash
+npm run setup
+```
+
+This will create a `.dev.vars` file with default values. **Do not commit this file to git!**
+
+3. Configure environment in `wrangler.toml`:
 
 - Set up D1 database binding
 - Set up R2 bucket bindings for food images and user avatars
 - Enable AI binding
 
-3. (Optional) Initialize the database by running the schema.sql if needed.
+4. (Optional) Initialize the database by running the schema.sql if needed.
 
-4. Run the application locally:
+5. Run the application locally:
 
 ```bash
 wrangler d1 execute bluby-db --file=src/db/schema.sql
 npm run dev
 ```
 
-5. Deploy to Cloudflare:
+6. Deploy to Cloudflare:
 
 ```bash
 wrangler d1 execute bluby-db --file=src/db/schema.sql --remote
 npm run deploy
 ```
 
-## API Documentation
+## ⚠️ Important Warning
 
-Access the worker at the deployed URL. Currently, endpoints include:
+**DO NOT run EAS commands in this directory!** 
 
-- GET / : API info
-- GET /health : Health check
-- GET /hello : Test endpoint
-- POST /food_scan/scan : Food scanning endpoint
+EAS is for React Native/Expo projects and should only be run from the root directory. This worker directory is specifically for Cloudflare Workers backend.
 
-Full API documentation coming soon. Check src/index.ts for implemented routes.
+If you accidentally try to run EAS commands here, they will be blocked with an error message. The `predev` and `predeploy` scripts will prevent accidental EAS usage.
 
-## Authentication
+## Environment Variables
 
-Authentication is planned to be handled through Supabase. The frontend application will directly authenticate with Supabase and obtain a JWT token, which should be included in the Authorization header of requests to this backend:
+The `.dev.vars` file contains local development secrets:
+- `GOOGLE_CLIENT_SECRET`: Your Google OAuth client secret (ask Jorge for the actual value)
+- `BASE_URL`: Local development server URL
 
+For production, configure secrets in Cloudflare Workers dashboard:
+
+```bash
+# Set production secrets
+wrangler secret put GOOGLE_CLIENT_SECRET
+wrangler secret put BASE_URL
 ```
-Authorization: Bearer <token>
-```
 
-Note: JWT verification is TODO in the middleware.
+## Available Scripts
 
-## Frontend Integration
-
-This backend is designed to work with React Native + Expo Router frontend applications. The frontend will handle authentication directly with Supabase and then communicate with this Cloudflare Worker backend using the JWT token.
+- `npm run setup` - Create .dev.vars with default values
+- `npm run dev` - Start local development server (with EAS protection)
+- `npm run deploy` - Deploy to production (with EAS protection)
+- `npm run generate` - Generate API client and database migrations
+- `npm run full-local` - Full local development setup
