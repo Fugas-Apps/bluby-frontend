@@ -3,6 +3,7 @@ import { cors } from 'hono/cors';
 import { logger } from 'hono/logger';
 import { HTTPException } from 'hono/http-exception';
 import { Env } from './auth';
+import { ALLOWED_ORIGIN_PATTERNS } from './utils/cors';
 
 // Import routes
 import auth from './routes/auth';
@@ -19,12 +20,9 @@ const app = new Hono<{ Bindings: Env }>();
 app.use('*', logger());
 app.use('*', cors({
   origin: (origin, c) => {
-    if (!origin) return origin;
-    const allowedPatterns = [
-      /^https?:\/\/(localhost|127\.0\.0\.1):\d+$/,
-      /^https?:\/\/.*\.blubyai\.com$/,
-    ];
-    if (allowedPatterns.some(pattern => pattern.test(origin))) {
+    // Mobile apps often send null origin - allow it
+    if (!origin) return '*';
+    if (ALLOWED_ORIGIN_PATTERNS.some(pattern => pattern.test(origin))) {
       return origin;
     }
     return null;

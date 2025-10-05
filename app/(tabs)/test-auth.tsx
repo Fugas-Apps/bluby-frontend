@@ -80,6 +80,7 @@ export default function TestAuthScreen() {
       )}
 
       <View style={styles.statusContainer}>
+        <Text style={styles.status}>API_URL: {process.env.EXPO_PUBLIC_API_URL}</Text>
         <Text style={styles.status}>Authenticated: {isAuthenticated ? 'Yes' : 'No'}</Text>
         {user && (
           <Text style={styles.user}>

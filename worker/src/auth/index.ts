@@ -3,6 +3,7 @@ import { withCloudflare } from "better-auth-cloudflare";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { drizzle } from "drizzle-orm/d1";
 import { schema, userProfiles } from "../db/schema";
+import { getTrustedOrigins } from "../utils/cors";
 
 // Use the same Env interface as middleware to avoid type conflicts
 export interface Env {
@@ -12,9 +13,6 @@ export interface Env {
     bluby_user_avatars: R2Bucket;
     bluby_user_sessions: KVNamespace;
     AI: any;
-    // Optional runtime overrides
-    ALLOWED_ORIGINS?: string;
-    ALLOW_ALL_ORIGINS?: string;
     // Google OAuth credentials
     GOOGLE_CLIENT_ID?: string;
     GOOGLE_CLIENT_SECRET?: string;
@@ -58,27 +56,9 @@ export function createAuth(env: Env, cf?: any) {
     
     console.log('🔐 Auth base URL:', baseUrl);
     
-    // Always use better-auth-cloudflare for both local and production
-    // Build allowed origins list from env or fallback to current local defaults
-    const localDefaults = [
-        "http://localhost:8787",
-        "http://127.0.0.1:8787",
-        "http://127.0.0.1:8081",
-        "http://localhost:8081",
-    ];
-
-    let allowedOrigins: string[];
-    if (env.ALLOW_ALL_ORIGINS && env.ALLOW_ALL_ORIGINS.toLowerCase() === "true") {
-        // WARNING: wildcard disables cookies/credentials in browsers. Use only for public, credential-less APIs.
-        allowedOrigins = ["*"];
-    } else if (env.ALLOWED_ORIGINS) {
-        allowedOrigins = env.ALLOWED_ORIGINS
-            .split(',')
-            .map(s => s.trim())
-            .filter(Boolean);
-    } else {
-        allowedOrigins = localDefaults;
-    }
+    // Use shared CORS configuration
+    // Better Auth doesn't support regex patterns, so we use '*' and rely on Hono CORS middleware for validation
+    const allowedOrigins = getTrustedOrigins();
 
     return betterAuth({
         database: drizzleAdapter(db, {
