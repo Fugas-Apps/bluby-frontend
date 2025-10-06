@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { authClient } from '../lib/authClient';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export interface User {
   id: string;

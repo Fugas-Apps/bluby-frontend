@@ -80,7 +80,7 @@ export function createAuth(env: Env, cf?: any) {
         },
         secret: 'my-secret-key-for-jwt',
         session: {
-            storeSessionInDatabase: false,
+            storeSessionInDatabase: true, // Store sessions in D1 for mobile compatibility
         },
         user: {
             // created: async (user: { id: string; email: string; }) => {
