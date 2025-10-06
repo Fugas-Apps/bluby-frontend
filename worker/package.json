@@ -25,7 +25,8 @@
     "better-auth-cloudflare": "^0.2.4",
     "drizzle-kit": "^0.31.4",
     "drizzle-orm": "^0.44.4",
-    "hono": "^4.9.2"
+    "hono": "^4.9.2",
+    "scrypt-pbkdf": "^1.1.1"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20230807.0",

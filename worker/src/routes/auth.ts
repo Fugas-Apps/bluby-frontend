@@ -1,6 +1,9 @@
 import { Hono } from 'hono';
 import { createAuth, Env } from '../auth';
 import { getCookie } from 'hono/cookie';
+import { drizzle } from 'drizzle-orm/d1';
+import { eq } from 'drizzle-orm';
+import { sessions } from '../db/schema';
 
 const auth = new Hono<{ Bindings: Env }>();
 
@@ -136,19 +139,59 @@ auth.get('/kv-session/:token', async (c) => {
     }
 });
 
+// Custom delete-session endpoint for manual Google OAuth sign-out
+// This replicates what Better Auth's /sign-out endpoint does but works for mobile apps
+auth.post('/delete-session', async (c) => {
+    console.log('🗑️ [DeleteSession] Manual session deletion request');
+
+    try {
+        const body = await c.req.json();
+        const { sessionToken } = body;
+
+        if (!sessionToken) {
+            console.error('❌ [DeleteSession] No session token provided');
+            return c.json({ error: 'Session token is required' }, 400);
+        }
+
+        console.log('🔑 [DeleteSession] Deleting session with token:', sessionToken.substring(0, 10) + '...');
+
+        // Create drizzle instance
+        const db = drizzle(c.env.DB);
+
+        // Delete the session from the database
+        await db.delete(sessions)
+            .where(eq(sessions.token, sessionToken))
+            .execute();
+
+        console.log('✅ [DeleteSession] Session deleted from database');
+
+        // Also try to delete from KV if it's stored there
+        try {
+            await c.env.bluby_user_sessions.delete(`session:${sessionToken}`);
+            await c.env.bluby_user_sessions.delete(sessionToken);
+            console.log('✅ [DeleteSession] Session deleted from KV');
+        } catch (kvError) {
+            console.error('⚠️ [DeleteSession] Error deleting from KV (non-fatal):', kvError);
+        }
+
+        return c.json({ success: true });
+
+    } catch (error) {
+        console.error('❌ [DeleteSession] Error deleting session:', error);
+        return c.json({
+            error: 'Failed to delete session',
+            details: error instanceof Error ? error.message : 'Unknown error'
+        }, 500);
+    }
+});
+
 // Better Auth handles all other auth routes automatically
 auth.all('*', async (c) => {
-    console.log('🔐 [AuthRoute] Incoming request:', c.req.method, c.req.url);
-
-    // Log headers manually since Headers.entries() isn't available in this env
-    const headersObj: Record<string, string> = {};
-    c.req.raw.headers.forEach((value, key) => {
-        headersObj[key] = value;
-    });
-    console.log('🔐 [AuthRoute] Headers:', headersObj);
+    // Minimal logging to save CPU time
+    // Only log the request method and path
+    console.log('🔐 [AuthRoute]', c.req.method, new URL(c.req.url).pathname);
 
     // Pass the Cloudflare context if available (for production)
-    // In local development, cf will be undefined and the auth will use fallback config
     const authInstance = createAuth(c.env, c.req.raw.cf);
 
     // Convert Hono request to standard Request for Better Auth
@@ -158,25 +201,11 @@ auth.all('*', async (c) => {
         body: c.req.raw.body,
     });
 
-    console.log('🔐 [AuthRoute] Calling Better Auth handler...');
     const response = await authInstance.handler(standardRequest);
 
-    console.log('🔐 [AuthRoute] Better Auth response status:', response.status);
-
-    // Log response headers manually
-    const responseHeadersObj: Record<string, string> = {};
-    response.headers.forEach((value, key) => {
-        responseHeadersObj[key] = value;
-    });
-    console.log('🔐 [AuthRoute] Better Auth response headers:', responseHeadersObj);
-
-    // Log the response body for debugging (clone first to not consume it)
-    const responseClone = response.clone();
-    try {
-        const responseText = await responseClone.text();
-        console.log('🔐 [AuthRoute] Better Auth response body:', responseText);
-    } catch (e) {
-        console.log('🔐 [AuthRoute] Could not read response body:', e);
+    // Only log errors
+    if (response.status >= 400) {
+        console.log('❌ [AuthRoute] Error status:', response.status);
     }
 
     return response;

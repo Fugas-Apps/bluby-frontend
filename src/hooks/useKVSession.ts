@@ -90,15 +90,16 @@ export const useKVSession = () => {
     if (sessionData?.user && !isAuthenticated) {
       console.log('🏪 [KVSession] Updating Zustand store with KV user data...');
       console.log('👤 [KVSession] User data:', JSON.stringify(sessionData.user, null, 2));
-      
+
       useAuthStore.setState({
         user: sessionData.user,
         isAuthenticated: true,
         isLoading: false,
         error: null,
+        loginType: 'google', // KV session is only used for Google OAuth
       });
-      
-      console.log('✅ [KVSession] Zustand store updated from KV data');
+
+      console.log('✅ [KVSession] Zustand store updated from KV data with loginType: google');
     }
   }, [sessionData, isAuthenticated]);
 

@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { authClient } from '../lib/authClient';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { manualSignOut } from '../utils/manualSignOut';
 
 export interface User {
   id: string;
@@ -14,6 +15,7 @@ export interface AuthState {
   isAuthenticated: boolean;
   isLoading: boolean;
   error: string | null;
+  loginType: 'email' | 'google' | null; // Track how the user logged in
 
   // Actions
   signIn: (email: string, password: string) => Promise<void>;
@@ -22,6 +24,7 @@ export interface AuthState {
   checkAuth: () => Promise<void>;
   initializeAuth: () => Promise<void>;
   clearError: () => void;
+  setUser: (user: User | null, loginType: 'email' | 'google') => void;
 }
 
 export const useAuthStore = create<AuthState>((set, get) => ({
@@ -29,6 +32,15 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   isAuthenticated: false,
   isLoading: false,
   error: null,
+  loginType: null,
+
+  setUser: (user: User | null, loginType: 'email' | 'google') => {
+    set({
+      user,
+      isAuthenticated: !!user,
+      loginType: user ? loginType : null,
+    });
+  },
 
   signIn: async (email: string, password: string) => {
     set({ isLoading: true, error: null });
@@ -42,7 +54,8 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         set({
           user: resp.data.user,
           isAuthenticated: true,
-          isLoading: false
+          isLoading: false,
+          loginType: 'email'
         });
         console.log('✅ Login successful');
       } else if (resp.error) {
@@ -70,7 +83,8 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         set({
           user: resp.data.user,
           isAuthenticated: true,
-          isLoading: false
+          isLoading: false,
+          loginType: 'email'
         });
         console.log('✅ Registration successful');
       } else if (resp.error) {
@@ -90,23 +104,45 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     set({ isLoading: true, error: null });
 
     try {
-      const result = await authClient.signOut();
-      if (!result?.error) {
-        set({
-          user: null,
-          isAuthenticated: false,
-          isLoading: false
-        });
-        console.log('✅ Logout successful');
+      const currentLoginType = get().loginType;
+      console.log('🔐 [AuthStore] Signing out. Login type:', currentLoginType);
+
+      // Use manual sign-out for Google users, Better Auth for email users
+      if (currentLoginType === 'google') {
+        console.log('🔐 [AuthStore] Using manual sign-out for Google user');
+        const result = await manualSignOut();
+
+        if (result.success) {
+          console.log('✅ [AuthStore] Manual sign-out successful');
+          // manualSignOut already updates the state, but ensure loading is false
+          set({ isLoading: false });
+        } else {
+          set({ error: result.error || 'Logout failed', isLoading: false });
+          console.log('❌ [AuthStore] Manual sign-out error:', result.error);
+          throw new Error(result.error || 'Logout failed');
+        }
       } else {
-        set({ error: result.error.message || 'Logout failed', isLoading: false });
-        console.log('❌ Logout error:', result.error);
-        throw new Error(result.error.message || 'Logout failed');
+        console.log('🔐 [AuthStore] Using Better Auth sign-out for email user');
+        const result = await authClient.signOut();
+
+        if (!result?.error) {
+          set({
+            user: null,
+            isAuthenticated: false,
+            isLoading: false,
+            loginType: null
+          });
+          console.log('✅ [AuthStore] Better Auth logout successful');
+        } else {
+          set({ error: result.error.message || 'Logout failed', isLoading: false });
+          console.log('❌ [AuthStore] Logout error:', result.error);
+          throw new Error(result.error.message || 'Logout failed');
+        }
       }
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Logout failed';
       set({ error: message, isLoading: false });
-      console.log('❌ Logout exception:', message);
+      console.log('❌ [AuthStore] Logout exception:', message);
       throw error;
     }
   },

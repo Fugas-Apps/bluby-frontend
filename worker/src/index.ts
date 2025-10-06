@@ -44,6 +44,7 @@ app.onError((err, c) => {
 // Routes
 app.route('/auth', auth);
 app.route('/api/auth', auth);
+app.route('/api', auth); // For /api/delete-session
 app.route('/v1/profiles', profiles);
 app.route('/v1/meals', meals);
 app.route('/v1/friends', friends);
