@@ -28,11 +28,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     isAuthenticated: authStore.isAuthenticated,
     isLoading: authStore.isLoading,
     error: authStore.error,
+    loginType: authStore.loginType,
     signIn: authStore.signIn,
     signUp: authStore.signUp,
     signOut: authStore.signOut,
     checkAuth: authStore.checkAuth,
     clearError: authStore.clearError,
+    setUser: authStore.setUser,
     signInWithGoogle,
   };
 

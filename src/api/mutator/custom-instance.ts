@@ -2,6 +2,8 @@ import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { API_URL } from '../config';
 import { authClient } from '../../lib/authClient';
+import { Platform } from 'react-native';
+import { useDevModeStore } from '../../stores/useDevModeStore';
 
 const AXIOS_INSTANCE = axios.create({
   baseURL: API_URL,
@@ -14,10 +16,21 @@ const AXIOS_INSTANCE = axios.create({
 AXIOS_INSTANCE.interceptors.request.use(
   async (config: any) => {
     try {
+      // In dev mode on web, use the dummy session token
+      if (__DEV__ && Platform.OS === 'web') {
+        const devModeState = useDevModeStore.getState();
+        if (devModeState.isDevUserEnabled) {
+          if (config.headers) {
+            config.headers.Authorization = `Bearer dummysession1234`;
+          }
+          return config;
+        }
+      }
+
       // Get the session from the auth client, which is the reliable way
       const session = await authClient.getSession();
       const token = session.data?.session?.token;
-      
+
       // If the token exists, add it to the Authorization header
       if (token && config.headers) {
         config.headers.Authorization = `Bearer ${token}`;
@@ -25,7 +38,7 @@ AXIOS_INSTANCE.interceptors.request.use(
     } catch (error) {
       console.warn('Failed to get auth token from better-auth session:', error);
     }
-    
+
     return config;
   },
   (error: any) => Promise.reject(error)

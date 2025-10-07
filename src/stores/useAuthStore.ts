@@ -2,6 +2,8 @@ import { create } from 'zustand';
 import { authClient } from '../lib/authClient';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { manualSignOut } from '../utils/manualSignOut';
+import { Platform } from 'react-native';
+import { useDevModeStore } from './useDevModeStore';
 
 export interface User {
   id: string;
@@ -176,6 +178,26 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   },
 
   initializeAuth: async () => {
+    // In dev mode on web, check if dev user should be auto-logged in
+    if (__DEV__ && Platform.OS === 'web') {
+      const devModeState = useDevModeStore.getState();
+      if (devModeState.isDevUserEnabled) {
+        // Set dev user directly
+        set({
+          user: {
+            id: 'dev-user-id',
+            email: 'testuser@blubyai.com',
+            name: 'Test User',
+          },
+          isAuthenticated: true,
+          isLoading: false,
+          loginType: 'email',
+        });
+        console.log('🔧 [DEV] Auto-logged in as testuser@blubyai.com');
+        return;
+      }
+    }
+
     // Check for existing session on app start
     await get().checkAuth();
   },

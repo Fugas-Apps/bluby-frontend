@@ -1,6 +1,8 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createAuthClient } from "better-auth/react";
 import { cloudflareClient } from "better-auth-cloudflare/client";
+import { Platform } from 'react-native';
+import { useDevModeStore } from '../stores/useDevModeStore';
 
 // Use environment variable or fallback
 const getBaseURL = () => {
@@ -15,11 +17,45 @@ const getBaseURL = () => {
   return baseURL;
 };
 
-export const authClient = createAuthClient({
+const betterAuthClient = createAuthClient({
   baseURL: getBaseURL(),
   storage: AsyncStorage, // Use AsyncStorage for React Native
   plugins: [cloudflareClient()], // Add Cloudflare plugin for geolocation and R2 file features
 });
+
+// Wrapper to intercept getSession and return dev session when dev mode is active
+export const authClient = {
+  ...betterAuthClient,
+  getSession: async () => {
+    // Check if dev mode is active
+    if (__DEV__ && Platform.OS === 'web') {
+      const devModeState = useDevModeStore.getState();
+      if (devModeState.isDevUserEnabled) {
+        console.log('🔧 [DEV] Returning mock dev session token');
+        return {
+          data: {
+            session: {
+              token: 'dummysession1234',
+              userId: 'dev-user-id',
+              expiresAt: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000),
+            },
+            user: {
+              id: 'dev-user-id',
+              email: 'testuser@blubyai.com',
+              name: 'Test User',
+            },
+          },
+          error: null,
+        };
+      }
+    }
+
+    // Otherwise use the real session
+    const session = await betterAuthClient.getSession();
+    console.log('📱 Auth Client - Real session:', session.data?.session ? 'Found' : 'Not found');
+    return session;
+  },
+};
 
 // Auth convenience methods for React Native
 export const auth = {

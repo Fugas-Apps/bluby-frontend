@@ -4,7 +4,8 @@
   "main": "src/index.ts",
   "scripts": {
     "setup": "node scripts/setup-dev-vars.js",
-    "dev": "npm run setup && wrangler dev",
+    "init-dev-data": "npx wrangler d1 execute bluby-db --local --file=scripts/dev-data.sql",
+    "dev": "npm run setup && npm run init-dev-data && wrangler dev",
     "deploy": "wrangler deploy",
     "build": "tsc",
     "d1-reload": "wrangler d1 execute bluby-db --file=src/db/schema.sql",

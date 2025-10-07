@@ -26,6 +26,21 @@ export const authMiddleware = async (c: Context<{ Bindings: Env; Variables: { us
     });
     console.log('🔐 Headers:', headers);
 
+    // DEV-ONLY: Check for dummy session token
+    const authHeader = standardRequest.headers.get('authorization');
+    if (authHeader && authHeader === 'Bearer dummysession1234') {
+        console.log('🔧 [DEV] Using dummy session token, bypassing auth');
+        // Set dev user in context
+        c.set('user', {
+            id: 'dev-user-id',
+            name: 'Test User',
+            email: 'testuser@blubyai.com',
+        });
+        console.log('✅ [DEV] Dev session validated, proceeding with dev user');
+        await next();
+        return;
+    }
+
     // Check for session to authenticate API routes
     let session = await auth.api.getSession({ headers: standardRequest.headers });
 

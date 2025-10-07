@@ -1,13 +1,15 @@
 import * as React from 'react';
-import { View, Text, Alert, ScrollView, TextInput } from 'react-native';
+import { View, Text, Alert, ScrollView, TextInput, Platform } from 'react-native';
 import { Screen } from '../../src/components/common/Screen';
 import { Button } from '../../src/components/ui/Button';
 import { useAuth } from '../../src/contexts/AuthProvider';
 import { authClient } from '../../src/lib/authClient';
 import { API_URL } from '../../src/api/config';
+import { useDevModeStore } from '../../src/stores/useDevModeStore';
 
 export default function TestAPIScreen() {
   const { user, isAuthenticated } = useAuth();
+  const { isDevUserEnabled } = useDevModeStore();
   const userIdFromAuth = user?.id ? String(user.id) : '';
 
   // allow manual override so you can paste numeric DB id for testing
@@ -23,16 +25,27 @@ export default function TestAPIScreen() {
 
   const handleGetSession = async () => {
     try {
+      console.log('🔍 [Test API] Getting session...');
       const session = await authClient.getSession();
+      console.log('🔍 [Test API] Session result:', {
+        hasSession: !!session.data?.session,
+        hasToken: !!session.data?.session?.token,
+        token: session.data?.session?.token?.substring(0, 10) + '...',
+        userId: session.data?.session?.userId,
+      });
+
       if (session.data?.session?.token) {
         setSessionToken(session.data.session.token);
-        Alert.alert('Success', 'Session token retrieved successfully!');
+        console.log('✅ [Test API] Session token set successfully');
+        Alert.alert('Success', `Session token retrieved!\nToken: ${session.data.session.token.substring(0, 20)}...`);
       } else {
         setSessionToken(null);
-        Alert.alert('Error', 'No session token found. Please log in.');
+        console.log('❌ [Test API] No session token found');
+        Alert.alert('Error', 'No session token found. Please log in or enable Dev Mode.');
       }
     } catch (error) {
       setSessionToken(null);
+      console.error('❌ [Test API] Failed to get session:', error);
       Alert.alert('Error', `Failed to get session: ${error}`);
     }
   };
@@ -51,6 +64,11 @@ export default function TestAPIScreen() {
     setProfileError(null);
 
     try {
+      console.log('🔍 [Test API] Fetching profile:', {
+        url: `${API_URL}/v1/profiles/${userId}`,
+        token: sessionToken.substring(0, 10) + '...',
+      });
+
       const response = await fetch(`${API_URL}/v1/profiles/${userId}`, {
         method: 'GET',
         headers: {
@@ -60,16 +78,20 @@ export default function TestAPIScreen() {
       });
 
       const data = await response.json();
+      console.log('🔍 [Test API] Profile response:', { status: response.status, data });
 
       if (response.ok) {
         setProfileData(data);
+        console.log('✅ [Test API] Profile retrieved successfully');
         Alert.alert('Success', 'Profile data retrieved successfully!');
       } else {
         setProfileError(data);
+        console.error('❌ [Test API] Profile error:', response.status, data);
         Alert.alert('Error', `API Error: ${response.status} - ${JSON.stringify(data)}`);
       }
     } catch (error) {
       setProfileError(error);
+      console.error('❌ [Test API] Request failed:', error);
       Alert.alert('Error', `Request failed: ${error}`);
     } finally {
       setIsLoadingProfile(false);
@@ -84,6 +106,8 @@ export default function TestAPIScreen() {
         <View className="mb-4 p-4 bg-blue-50 rounded-lg">
           <Text className="text-gray-600 mb-2">Testing connection to local worker API</Text>
           <Text className="text-sm text-gray-500">Endpoint: {API_URL}</Text>
+          <Text className="text-sm text-gray-500 mt-1">Platform: {Platform.OS}</Text>
+          <Text className="text-sm text-gray-500 mt-1">Dev Mode Enabled: {__DEV__ && Platform.OS === 'web' && isDevUserEnabled ? 'Yes ✅' : 'No'}</Text>
           <Text className="text-sm text-gray-500 mt-1">Auth user id: {userIdFromAuth || 'Not logged in'}</Text>
           <Text className="text-sm text-gray-500 mt-1">Using id for request: {userId || 'None'}</Text>
           <Text className="text-sm text-gray-500 mt-1">Authenticated: {isAuthenticated ? 'Yes' : 'No'}</Text>
