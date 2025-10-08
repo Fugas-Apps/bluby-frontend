@@ -17,50 +17,48 @@ const getBaseURL = () => {
   return baseURL;
 };
 
-const betterAuthClient = createAuthClient({
+export const authClient = createAuthClient({
   baseURL: getBaseURL(),
   storage: AsyncStorage, // Use AsyncStorage for React Native
   plugins: [cloudflareClient()], // Add Cloudflare plugin for geolocation and R2 file features
 });
 
-// Wrapper to intercept getSession and return dev session when dev mode is active
-export const authClient = {
-  ...betterAuthClient,
-  getSession: async () => {
-    // Check if dev mode is active
-    if (__DEV__ && Platform.OS === 'web') {
-      const devModeState = useDevModeStore.getState();
-      if (devModeState.isDevUserEnabled) {
-        console.log('🔧 [DEV] Returning mock dev session token');
-        return {
-          data: {
-            session: {
-              token: 'dummysession1234',
-              userId: 'dev-user-id',
-              expiresAt: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000),
-            },
-            user: {
-              id: 'dev-user-id',
-              email: 'testuser@blubyai.com',
-              name: 'Test User',
-            },
-          },
-          error: null,
-        };
-      }
-    }
 
-    // Otherwise use the real session
-    const session = await betterAuthClient.getSession();
-    console.log('📱 Auth Client - Real session:', session.data?.session ? 'Found' : 'Not found');
-    return session;
-  },
+// Create a separate wrapper for getSession that handles dev mode
+export const getSessionWithDevMode = async () => {
+  // Check if dev mode is active
+  if (__DEV__ && Platform.OS === 'web') {
+    const devModeState = useDevModeStore.getState();
+    if (devModeState.isDevUserEnabled) {
+      console.log('🔧 [DEV] Returning mock dev session token');
+      return {
+        data: {
+          session: {
+            token: 'dummysession1234',
+            userId: 'dev-user-id',
+            expiresAt: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000),
+          },
+          user: {
+            id: 'dev-user-id',
+            email: 'testuser@blubyai.com',
+            name: 'Test User',
+          },
+        },
+        error: null,
+      };
+    }
+  }
+
+  // Otherwise use the real session
+  const session = await betterAuthClient.getSession();
+  console.log('📱 Auth Client - Real session:', session.data?.session ? 'Found' : 'Not found');
+  return session;
 };
 
 // Auth convenience methods for React Native
 export const auth = {
   // Session management
-  getSession: () => authClient.getSession(),
+  getSession: () => getSessionWithDevMode(),
   signIn: {
     email: (data: { email: string; password: string }) => authClient.signIn.email(data),
     social: (data: { provider: string; callbackURL?: string }) => authClient.signIn.social(data),
@@ -84,7 +82,7 @@ export const auth = {
     }
 
     // Get session to access token
-    const session = await authClient.getSession();
+    const session = await getSessionWithDevMode();
     const token = session.data?.session?.token;
 
     const response = await fetch(`${getBaseURL()}/files/upload`, {
@@ -100,7 +98,7 @@ export const auth = {
 
   // Get current user data
   getUser: async () => {
-    const session = await authClient.getSession();
+    const session = await getSessionWithDevMode();
     return session.data?.user;
   },
 } as const;

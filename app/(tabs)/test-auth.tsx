@@ -84,7 +84,7 @@ export default function TestAuthScreen() {
         <Text style={styles.status}>Authenticated: {isAuthenticated ? 'Yes' : 'No'}</Text>
         {user && (
           <Text style={styles.user}>
-            User: {user.name} ({user.email})
+            User: {user?.name || 'No name'} ({user?.email || 'No email'})
           </Text>
         )}
       </View>

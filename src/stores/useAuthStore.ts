@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { authClient } from '../lib/authClient';
+import { authClient, getSessionWithDevMode } from '../lib/authClient';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { manualSignOut } from '../utils/manualSignOut';
 import { Platform } from 'react-native';
@@ -68,7 +68,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Login failed';
       set({ error: message, isLoading: false });
-      console.log('❌ Login exception:', message);
+      console.log('❌ Login exception:', { message, stack: error instanceof Error ? error.stack : 'No stack trace available' });
       throw error;
     }
   },
@@ -153,7 +153,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     set({ isLoading: true, error: null });
 
     try {
-      const session = await authClient.getSession();
+      const session = await getSessionWithDevMode();
       if (session.data?.session && session.data?.user) {
         set({
           user: session.data.user,

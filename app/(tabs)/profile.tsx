@@ -263,7 +263,7 @@ export default function ProfileScreen() {
           <Text className="text-xl font-bold text-gray-800 mb-1">
             {user.name || 'User'}
           </Text>
-          <Text className="text-gray-500 text-sm mb-4">{user.email}</Text>
+          <Text className="text-gray-500 text-sm mb-4">{user?.email || 'No email'}</Text>
 
           {profile?.nutritionGoals && (
             <View className="flex-row items-center mb-4">

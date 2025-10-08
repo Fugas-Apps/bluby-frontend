@@ -133,7 +133,7 @@ export const UserProfile: React.FC = () => {
         <View className="p-4">
             <Text className="text-2xl font-bold mb-4">Profile</Text>
             <Text className="mb-2">Name: {user.name}</Text>
-            <Text className="mb-4">Email: {user.email}</Text>
+            <Text className="mb-4">Email: {user?.email || 'No email'}</Text>
             <Button
                 title="Logout"
                 onPress={() => auth.signOut()}
