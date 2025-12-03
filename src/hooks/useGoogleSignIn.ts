@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
 import * as WebBrowser from 'expo-web-browser';
 import * as Linking from 'expo-linking';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useAuthStore } from '../stores/useAuthStore';
 import { useKVSession } from './useKVSession';
+import { authWrapper } from '../lib/authWrapper';
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -19,15 +19,15 @@ export const useGoogleSignIn = (onSuccess?: (user: any) => void) => {
   // This should be a custom scheme that your app can handle
   const redirectUri = Linking.createURL('/auth/callback');
 
-  console.log("🔧 [GoogleSignIn] App Redirect URI:", redirectUri);
-  console.log("🔧 [GoogleSignIn] API URL:", apiUrl);
-  console.log("🔧 [GoogleSignIn] Current Zustand user:", storeUser);
-  console.log("🔧 [GoogleSignIn] Is Authenticated:", isAuthenticated);
+  console.log('🔧 [GoogleSignIn] App Redirect URI:', redirectUri);
+  console.log('🔧 [GoogleSignIn] API URL:', apiUrl);
+  console.log('🔧 [GoogleSignIn] Current Zustand user:', storeUser);
+  console.log('🔧 [GoogleSignIn] Is Authenticated:', isAuthenticated);
 
   useEffect(() => {
     // Listen for deep links when the app is already open
     const subscription = Linking.addEventListener('url', handleDeepLink);
-    
+
     // Check if app was opened via deep link
     Linking.getInitialURL().then((url) => {
       if (url) {
@@ -45,7 +45,14 @@ export const useGoogleSignIn = (onSuccess?: (user: any) => void) => {
 
     // Parse the URL to check if it's an auth callback
     const { hostname, path, queryParams } = Linking.parse(url);
-    console.log('🔍 [GoogleSignIn] Parsed URL - hostname:', hostname, 'path:', path, 'queryParams:', queryParams);
+    console.log(
+      '🔍 [GoogleSignIn] Parsed URL - hostname:',
+      hostname,
+      'path:',
+      path,
+      'queryParams:',
+      queryParams
+    );
 
     if (path === 'auth/callback') {
       console.log('✅ [GoogleSignIn] Auth callback received');
@@ -60,7 +67,10 @@ export const useGoogleSignIn = (onSuccess?: (user: any) => void) => {
         return;
       }
 
-      console.log('🔑 [GoogleSignIn] Session token received:', sessionToken.substring(0, 20) + '...');
+      console.log(
+        '🔑 [GoogleSignIn] Session token received:',
+        sessionToken.substring(0, 20) + '...'
+      );
       console.log('🔑 [GoogleSignIn] Full session token:', sessionToken);
 
       // Parse the cookie to extract name and value
@@ -77,21 +87,23 @@ export const useGoogleSignIn = (onSuccess?: (user: any) => void) => {
       // 2. Store the value part with better-auth.session_token key
       const decodedCookieValue = decodeURIComponent(cookieValue);
       console.log('🍪 [GoogleSignIn] Decoded cookie value:', decodedCookieValue);
-      
-      console.log('💾 [GoogleSignIn] Storing both cookies in AsyncStorage...');
-      await AsyncStorage.setItem(cookieName, decodedCookieValue);
-      await AsyncStorage.setItem('better-auth.session_token', decodedCookieValue);
-      console.log('✅ [GoogleSignIn] Both cookies stored in AsyncStorage');
+
+      console.log('💾 [GoogleSignIn] Storing session token via auth wrapper...');
+      await authWrapper.storeGoogleSessionToken(decodedCookieValue);
+      console.log('✅ [GoogleSignIn] Session token stored via auth wrapper');
 
       // Use KV query instead of authClient
       try {
         console.log('🔐 [GoogleSignIn] Using KV session query to verify session...');
-        
+
         // Refetch the KV session to get user data
         const kvResult = await refetchKVSession();
-        
+
         if (kvResult.data?.user) {
-          console.log('👤 [GoogleSignIn] User data from KV:', JSON.stringify(kvResult.data.user, null, 2));
+          console.log(
+            '👤 [GoogleSignIn] User data from KV:',
+            JSON.stringify(kvResult.data.user, null, 2)
+          );
           console.log('🏪 [GoogleSignIn] Zustand store should be updated by useKVSession hook');
 
           if (onSuccess) {
@@ -99,7 +111,10 @@ export const useGoogleSignIn = (onSuccess?: (user: any) => void) => {
             onSuccess(kvResult.data.user);
           }
         } else {
-          console.error('❌ [GoogleSignIn] No user in KV session:', JSON.stringify(kvResult.data, null, 2));
+          console.error(
+            '❌ [GoogleSignIn] No user in KV session:',
+            JSON.stringify(kvResult.data, null, 2)
+          );
         }
       } catch (error) {
         console.error('❌ [GoogleSignIn] Error using KV session query:', error);
@@ -136,7 +151,10 @@ export const useGoogleSignIn = (onSuccess?: (user: any) => void) => {
       });
 
       console.log('📡 [GoogleSignIn] OAuth URL response status:', response.status);
-      console.log('📡 [GoogleSignIn] OAuth URL response headers:', JSON.stringify(Object.fromEntries(response.headers.entries())));
+      console.log(
+        '📡 [GoogleSignIn] OAuth URL response headers:',
+        JSON.stringify(Object.fromEntries(response.headers.entries()))
+      );
 
       if (!response.ok) {
         const errorText = await response.text();
@@ -160,10 +178,7 @@ export const useGoogleSignIn = (onSuccess?: (user: any) => void) => {
       console.log('🔐 [GoogleSignIn] Opening OAuth URL:', authUrl);
 
       // Open the browser for OAuth
-      const result = await WebBrowser.openAuthSessionAsync(
-        authUrl,
-        redirectUri
-      );
+      const result = await WebBrowser.openAuthSessionAsync(authUrl, redirectUri);
 
       console.log('🔐 [GoogleSignIn] Browser result type:', result.type);
       console.log('🔐 [GoogleSignIn] Browser result:', JSON.stringify(result, null, 2));

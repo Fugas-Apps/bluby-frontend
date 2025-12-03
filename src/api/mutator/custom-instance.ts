@@ -1,7 +1,6 @@
 import axios from 'axios';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { API_URL } from '../config';
-import { authClient } from '../../lib/authClient';
+import { auth } from '../../lib/authWrapper';
 import { Platform } from 'react-native';
 import { useDevModeStore } from '../../stores/useDevModeStore';
 
@@ -27,9 +26,17 @@ AXIOS_INSTANCE.interceptors.request.use(
         }
       }
 
-      // Get the session from the auth client, which is the reliable way
-      const session = await authClient.getSession();
+      // Get the session from the auth wrapper, which handles all cases
+      const session = await auth.getSession();
       const token = session.data?.session?.token;
+
+      // Debug logging for session retrieval
+      console.log('🔑 [AxiosInterceptor] Session retrieval:', {
+        hasSession: !!session.data?.session,
+        hasToken: !!token,
+        tokenPreview: token ? token.substring(0, 10) + '...' : 'none',
+        error: session.error,
+      });
 
       // If the token exists, add it to the Authorization header
       if (token && config.headers) {
@@ -83,16 +90,17 @@ export const login = async (credentials: LoginCredentials): Promise<AuthResponse
   try {
     const response = await AXIOS_INSTANCE.post<AuthResponse>('/auth/login', credentials);
     const { token, user } = response.data;
-    
-    // Store the token in AsyncStorage
+
+    // Store the token in AsyncStorage (legacy, keeping for compatibility)
+    const { AsyncStorage } = require('@react-native-async-storage/async-storage');
     await AsyncStorage.setItem('melody_auth_token', token);
     await AsyncStorage.setItem('melody_user', JSON.stringify(user));
-    
+
     return response.data;
   } catch (error: any) {
     throw {
       message: error.response?.data?.message || 'Login failed',
-      code: error.response?.data?.code || 'LOGIN_ERROR'
+      code: error.response?.data?.code || 'LOGIN_ERROR',
     } as AuthError;
   }
 };
@@ -102,16 +110,17 @@ export const register = async (credentials: RegisterCredentials): Promise<AuthRe
   try {
     const response = await AXIOS_INSTANCE.post<AuthResponse>('/auth/register', credentials);
     const { token, user } = response.data;
-    
-    // Store the token in AsyncStorage
+
+    // Store the token in AsyncStorage (legacy)
+    const AsyncStorage = require('@react-native-async-storage/async-storage').default;
     await AsyncStorage.setItem('melody_auth_token', token);
     await AsyncStorage.setItem('melody_user', JSON.stringify(user));
-    
+
     return response.data;
   } catch (error: any) {
     throw {
       message: error.response?.data?.message || 'Registration failed',
-      code: error.response?.data?.code || 'REGISTER_ERROR'
+      code: error.response?.data?.code || 'REGISTER_ERROR',
     } as AuthError;
   }
 };
@@ -120,9 +129,10 @@ export const register = async (credentials: RegisterCredentials): Promise<AuthRe
 export const logout = async (): Promise<void> => {
   try {
     // Remove the token from AsyncStorage
+    const AsyncStorage = require('@react-native-async-storage/async-storage').default;
     await AsyncStorage.removeItem('melody_auth_token');
     await AsyncStorage.removeItem('melody_user');
-    
+
     // Optional: Call the logout endpoint on the server
     try {
       await AXIOS_INSTANCE.post('/auth/logout');
@@ -138,6 +148,7 @@ export const logout = async (): Promise<void> => {
 // Get current user
 export const getCurrentUser = async (): Promise<any> => {
   try {
+    const AsyncStorage = require('@react-native-async-storage/async-storage').default;
     const userString = await AsyncStorage.getItem('melody_user');
     return userString ? JSON.parse(userString) : null;
   } catch (error) {
@@ -149,7 +160,7 @@ export const getCurrentUser = async (): Promise<any> => {
 // Check if user is authenticated
 export const isAuthenticated = async (): Promise<boolean> => {
   try {
-    const session = await authClient.getSession();
+    const session = await auth.getSession();
     return !!session.data?.session;
   } catch (error) {
     console.warn('Failed to check auth status:', error);

@@ -1,6 +1,5 @@
 import { create } from 'zustand';
-import { authClient, getSessionWithDevMode } from '../lib/authClient';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { auth, getSessionWithDevMode } from '../lib/authWrapper';
 import { manualSignOut } from '../utils/manualSignOut';
 import { Platform } from 'react-native';
 import { useDevModeStore } from './useDevModeStore';
@@ -49,7 +48,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
     try {
       console.log('🔐 Attempting login with:', { email });
-      const resp = await authClient.signIn.email({ email, password });
+      const resp = await auth.signIn.email({ email, password });
       console.log('🔐 Login result:', resp);
 
       if (resp.data?.user) {
@@ -57,7 +56,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
           user: resp.data.user,
           isAuthenticated: true,
           isLoading: false,
-          loginType: 'email'
+          loginType: 'email',
         });
         console.log('✅ Login successful');
       } else if (resp.error) {
@@ -68,7 +67,10 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Login failed';
       set({ error: message, isLoading: false });
-      console.log('❌ Login exception:', { message, stack: error instanceof Error ? error.stack : 'No stack trace available' });
+      console.log('❌ Login exception:', {
+        message,
+        stack: error instanceof Error ? error.stack : 'No stack trace available',
+      });
       throw error;
     }
   },
@@ -78,7 +80,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
     try {
       console.log('📝 Attempting register with:', { email, name });
-      const resp = await authClient.signUp.email({ email, password, name });
+      const resp = await auth.signUp.email({ email, password, name });
       console.log('📝 Register result:', resp);
 
       if (resp.data?.user) {
@@ -86,7 +88,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
           user: resp.data.user,
           isAuthenticated: true,
           isLoading: false,
-          loginType: 'email'
+          loginType: 'email',
         });
         console.log('✅ Registration successful');
       } else if (resp.error) {
@@ -125,20 +127,24 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         }
       } else {
         console.log('🔐 [AuthStore] Using Better Auth sign-out for email user');
-        const result = await authClient.signOut();
+        const result = await auth.signOut();
 
         if (!result?.error) {
           set({
             user: null,
             isAuthenticated: false,
             isLoading: false,
-            loginType: null
+            loginType: null,
           });
           console.log('✅ [AuthStore] Better Auth logout successful');
         } else {
-          set({ error: result.error.message || 'Logout failed', isLoading: false });
+          const errorMsg =
+            typeof result.error === 'string'
+              ? result.error
+              : result.error?.message || 'Logout failed';
+          set({ error: errorMsg, isLoading: false });
           console.log('❌ [AuthStore] Logout error:', result.error);
-          throw new Error(result.error.message || 'Logout failed');
+          throw new Error(errorMsg);
         }
       }
     } catch (error) {
@@ -158,20 +164,20 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         set({
           user: session.data.user,
           isAuthenticated: true,
-          isLoading: false
+          isLoading: false,
         });
       } else {
         set({
           user: null,
           isAuthenticated: false,
-          isLoading: false
+          isLoading: false,
         });
       }
     } catch (error) {
       set({
         user: null,
         isAuthenticated: false,
-        isLoading: false
+        isLoading: false,
       });
       console.warn('Failed to check auth status:', error);
     }

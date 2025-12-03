@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useAuthStore } from '../stores/useAuthStore';
+import { authWrapper } from '../lib/authWrapper';
 
 // Interface for the session data structure from KV
 interface KVSessionData {
@@ -23,44 +23,46 @@ interface KVSessionData {
 const fetchSessionFromKV = async (): Promise<KVSessionData | null> => {
   try {
     console.log('🔍 [KVSession] Starting KV session fetch...');
-    
-    // Get the session token from AsyncStorage (same as authClient would use)
-    const sessionToken = await AsyncStorage.getItem('better-auth.session_token');
-    
+
+    // Get the session token from auth wrapper
+    const session = await authWrapper.getSession();
+    const sessionToken = session.data?.session?.token;
+
     if (!sessionToken) {
       console.log('❌ [KVSession] No session token found in AsyncStorage');
       return null;
     }
-    
+
     console.log('🔑 [KVSession] Found session token:', sessionToken.substring(0, 20) + '...');
-    
+
     // Extract just the database token (before the first dot)
     const databaseToken = sessionToken.split('.')[0];
     console.log('🗄️ [KVSession] Database token for KV lookup:', databaseToken);
-    
+
     // Call our backend API to query KV directly
     const apiUrl = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:8787';
     const kvUrl = `${apiUrl}/api/auth/kv-session/${databaseToken}`;
-    
+
     console.log('🌐 [KVSession] Fetching from KV endpoint:', kvUrl);
-    
+
     const response = await fetch(kvUrl, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
       },
     });
-    
+
     if (!response.ok) {
+      // TODO: This sometimes shouldn't thrown an error, like when logging out. Beware of pricing spikes for no reason.
       console.error('❌ [KVSession] KV fetch failed. Status:', response.status);
       const errorText = await response.text();
       console.error('📄 [KVSession] Error response:', errorText);
       return null;
     }
-    
+
     const sessionData = await response.json();
     console.log('✅ [KVSession] KV session data received:', JSON.stringify(sessionData, null, 2));
-    
+
     return sessionData;
   } catch (error) {
     console.error('❌ [KVSession] Error fetching from KV:', error);
@@ -71,7 +73,7 @@ const fetchSessionFromKV = async (): Promise<KVSessionData | null> => {
 // Hook to query session from KV
 export const useKVSession = () => {
   const { user, isAuthenticated } = useAuthStore();
-  
+
   const {
     data: sessionData,
     isLoading,
@@ -90,6 +92,12 @@ export const useKVSession = () => {
     if (sessionData?.user && !isAuthenticated) {
       console.log('🏪 [KVSession] Updating Zustand store with KV user data...');
       console.log('👤 [KVSession] User data:', JSON.stringify(sessionData.user, null, 2));
+
+      // Also store the session token using auth wrapper
+      if (sessionData.session?.token) {
+        console.log('💾 [KVSession] Storing session token via auth wrapper...');
+        authWrapper.storeGoogleSessionToken(sessionData.session.token);
+      }
 
       useAuthStore.setState({
         user: sessionData.user,
