@@ -29,3 +29,4 @@ android
 *tmp*
 .drizzle_applied.json
 worker/.dev.vars
+worker/bun.lockb
